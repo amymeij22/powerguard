@@ -1,0 +1,209 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import { getAllPowerStatus, PowerStatus } from '@/lib/firebaseService';
+
+interface DetailStatusModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  detailId: string;
+}
+
+export default function DetailStatusModal({ isOpen, onClose, detailId }: DetailStatusModalProps) {
+  const [detailData, setDetailData] = useState<PowerStatus | null>(null);
+
+  useEffect(() => {
+    if (!isOpen || !detailId) return;
+
+    const unsubscribe = getAllPowerStatus((statuses) => {
+      const foundStatus = statuses.find(status => status.id === detailId);
+      if (foundStatus) {
+        setDetailData(foundStatus);
+      }
+    });
+
+    return unsubscribe;
+  }, [isOpen, detailId]);
+
+  // Handle click outside modal
+  const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (e.target === e.currentTarget) {
+      onClose();
+    }
+  };
+
+  if (!isOpen) return null;
+
+  const formatDisplayDateTime = (datetime: string) => {
+    try {
+      const [datePart, timePart] = datetime.split(' ');
+      const [day, month, year] = datePart.split('/');
+      const [hours, minutes] = timePart.split(':');
+      
+      const months = [
+        'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+        'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+      ];
+      
+      return `${parseInt(day)} ${months[parseInt(month) - 1]} ${year}, ${hours}:${minutes} WIB`;
+    } catch (error) {
+      return datetime;
+    }
+  };
+
+  const generateDescription = (pln: number, genset135: number, genset150: number, gensetRadar: number) => {
+    const activeGensets = [];
+    const inactiveGensets = [];
+    
+    // Categorize gensets
+    if (genset135) {
+      activeGensets.push('135kVA');
+    } else {
+      inactiveGensets.push('135kVA');
+    }
+    
+    if (genset150) {
+      activeGensets.push('150kVA');
+    } else {
+      inactiveGensets.push('150kVA');
+    }
+    
+    if (gensetRadar) {
+      activeGensets.push('Radar');
+    } else {
+      inactiveGensets.push('Radar');
+    }
+
+    if (pln) {
+      // PLN aktif
+      if (activeGensets.length === 0) {
+        // PLN aktif, semua genset nonaktif
+        return 'PLN aktif, Genset otomatis nonaktif';
+      } else {
+        // PLN aktif, ada genset yang aktif
+        return `PLN aktif, Genset ${activeGensets.join(', ')} sedang dipanaskan`;
+      }
+    } else {
+      // PLN nonaktif
+      if (inactiveGensets.length === 0) {
+        // PLN nonaktif, semua genset aktif
+        return 'PLN nonaktif, genset otomatis aktif';
+      } else {
+        // PLN nonaktif, ada genset yang nonaktif
+        const activeText = activeGensets.length > 0 ? `Genset ${activeGensets.join(', ')} otomatis nyala` : '';
+        const inactiveText = `Genset ${inactiveGensets.join(', ')} harus aktifkan secara manual`;
+        
+        if (activeGensets.length > 0) {
+          return `PLN nonaktif, ${activeText}, ${inactiveText}`;
+        } else {
+          return `PLN nonaktif, ${inactiveText}`;
+        }
+      }
+    }
+  };
+
+  const getStatusBadge = (status: number) => {
+    if (status === 1) {
+      return 'px-3 py-1.5 rounded-full bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300 text-sm font-medium';
+    } else {
+      return 'px-3 py-1.5 rounded-full bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300 text-sm font-medium';
+    }
+  };
+
+  const getStatusText = (status: number) => status === 1 ? 'Aktif' : 'Nonaktif';
+
+  if (!detailData) {
+    return (
+      <div className="fixed inset-0 z-50 bg-black bg-opacity-50" onClick={handleBackdropClick}>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white dark:bg-gray-800 rounded-xl shadow-2xl max-w-md w-full mx-4">
+          <div className="p-8 text-center">
+            <i className="fas fa-spinner fa-spin text-3xl text-emerald-500 mb-4"></i>
+            <p className="text-gray-500 dark:text-gray-400 font-medium">Memuat data...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 bg-black bg-opacity-50" onClick={handleBackdropClick}>
+      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white dark:bg-gray-800 rounded-xl shadow-2xl max-w-md w-full mx-4 overflow-hidden">
+        {/* Modal Header with gradient */}
+        <div className="bg-gradient-to-r from-emerald-500 to-emerald-600 p-6 text-white">
+          <div className="flex justify-between items-center">
+            <div>
+              <h3 className="text-xl font-bold">Detail Status</h3>
+              <p className="text-emerald-100 text-sm mt-1">Informasi lengkap status sistem</p>
+            </div>
+            <button 
+              onClick={onClose}
+              className="text-white hover:text-emerald-200 focus:outline-none transition-colors p-2 rounded-full hover:bg-white hover:bg-opacity-20"
+            >
+              <i className="fas fa-times text-lg"></i>
+            </button>
+          </div>
+        </div>
+        
+        {/* Modal Content */}
+        <div className="p-6 space-y-6">
+          <div>
+            <h4 className="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-3 flex items-center">
+              <i className="fas fa-calendar-alt mr-2 text-emerald-500"></i>
+              Tanggal & Waktu
+            </h4>
+            <p className="text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-gray-700 p-3 rounded-lg">
+              {formatDisplayDateTime(detailData.datetime)}
+            </p>
+          </div>
+          
+          <div>
+            <h4 className="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-3 flex items-center">
+              <i className="fas fa-bolt mr-2 text-emerald-500"></i>
+              Status Sumber Listrik
+            </h4>
+            <div className="space-y-3">
+              <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                <span className="text-gray-600 dark:text-gray-400 font-medium">PLN:</span>
+                <span className={getStatusBadge(detailData.pln)}>{getStatusText(detailData.pln)}</span>
+              </div>
+              <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                <span className="text-gray-600 dark:text-gray-400 font-medium">Genset 135kVA:</span>
+                <span className={getStatusBadge(detailData.genset_135)}>{getStatusText(detailData.genset_135)}</span>
+              </div>
+              <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                <span className="text-gray-600 dark:text-gray-400 font-medium">Genset 150kVA:</span>
+                <span className={getStatusBadge(detailData.genset_150)}>{getStatusText(detailData.genset_150)}</span>
+              </div>
+              <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                <span className="text-gray-600 dark:text-gray-400 font-medium">Genset Radar:</span>
+                <span className={getStatusBadge(detailData.genset_radar)}>{getStatusText(detailData.genset_radar)}</span>
+              </div>
+            </div>
+          </div>
+          
+          <div>
+            <h4 className="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-3 flex items-center">
+              <i className="fas fa-info-circle mr-2 text-emerald-500"></i>
+              Keterangan
+            </h4>
+            <div className="bg-gradient-to-r from-emerald-50 to-blue-50 dark:from-gray-700 dark:to-gray-600 p-4 rounded-lg border-l-4 border-emerald-500">
+              <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
+                {generateDescription(detailData.pln, detailData.genset_135, detailData.genset_150, detailData.genset_radar)}
+              </p>
+            </div>
+          </div>
+        </div>
+        
+        {/* Modal Footer */}
+        <div className="bg-gray-50 dark:bg-gray-700 px-6 py-4 flex justify-end">
+          <button 
+            onClick={onClose}
+            className="px-6 py-2.5 bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-500 transition-all font-medium"
+          >
+            Tutup
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}

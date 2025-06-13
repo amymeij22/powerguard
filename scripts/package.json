@@ -1,0 +1,16 @@
+{
+  "name": "powerguard-data-simulator",
+  "version": "1.0.0",
+  "description": "Data simulator for PowerGuard Firebase integration",
+  "main": "data-simulator.js",
+  "scripts": {
+    "start": "node data-simulator.js",
+    "simulate": "node data-simulator.js"
+  },
+  "dependencies": {
+    "firebase": "^10.7.1"
+  },
+  "keywords": ["firebase", "powerguard", "simulator", "realtime"],
+  "author": "PowerGuard Team",
+  "license": "MIT"
+}
