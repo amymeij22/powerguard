@@ -114,7 +114,7 @@ export default function FuelLevelCard() {
   const renderFuelTank = (level: number, title: string, icon: string) => (
     <div className="flex flex-col items-center flex-1">
       {/* Tank Title with spacing */}
-      <div className="mb-4 text-center">
+      <div className="mb-6 text-center">
         <h3 className="text-sm sm:text-base lg:text-lg font-semibold text-gray-700 dark:text-gray-300">
           <i className={`${icon} mr-2 text-emerald-500`}></i>
           {title}
