@@ -52,51 +52,43 @@ export default function DetailStatusModal({ isOpen, onClose, detailId }: DetailS
   };
 
   const generateDescription = (pln: number, genset135: number, genset150: number, gensetRadar: number) => {
-    const activeGensets = [];
-    const inactiveGensets = [];
-    
-    // Categorize gensets
-    if (genset135) {
-      activeGensets.push('135kVA');
-    } else {
-      inactiveGensets.push('135kVA');
-    }
-    
-    if (genset150) {
-      activeGensets.push('150kVA');
-    } else {
-      inactiveGensets.push('150kVA');
-    }
-    
-    if (gensetRadar) {
-      activeGensets.push('Radar');
-    } else {
-      inactiveGensets.push('Radar');
-    }
-
     if (pln) {
       // PLN aktif
+      const activeGensets = [];
+      if (genset135) activeGensets.push('135kVA');
+      if (genset150) activeGensets.push('150kVA');
+      if (gensetRadar) activeGensets.push('Radar');
+
       if (activeGensets.length === 0) {
-        // PLN aktif, semua genset nonaktif
         return 'PLN aktif, Genset otomatis nonaktif';
       } else {
-        // PLN aktif, ada genset yang aktif
         return `PLN aktif, Genset ${activeGensets.join(', ')} sedang dipanaskan`;
       }
     } else {
       // PLN nonaktif
-      if (inactiveGensets.length === 0) {
-        // PLN nonaktif, semua genset aktif
-        return 'PLN nonaktif, genset otomatis aktif';
-      } else {
-        // PLN nonaktif, ada genset yang nonaktif
-        const activeText = activeGensets.length > 0 ? `Genset ${activeGensets.join(', ')} otomatis nyala` : '';
-        const inactiveText = `Genset ${inactiveGensets.join(', ')} harus aktifkan secara manual`;
-        
-        if (activeGensets.length > 0) {
-          return `PLN nonaktif, ${activeText}, ${inactiveText}`;
+      const mainGensetsActive = genset135 + genset150; // Count active main gensets
+      const radarActive = gensetRadar;
+
+      if (mainGensetsActive === 0) {
+        // No main gensets active
+        if (radarActive) {
+          return 'PLN nonaktif, Genset Radar otomatis nyala, Genset 135kVA dan 150kVA harus aktifkan secara manual';
         } else {
-          return `PLN nonaktif, ${inactiveText}`;
+          return 'PLN nonaktif, Genset 135kVA, 150kVA, dan Radar harus aktifkan secara manual';
+        }
+      } else if (mainGensetsActive === 1) {
+        // One main genset active (normal operation)
+        if (radarActive) {
+          return 'PLN nonaktif, genset otomatis aktif';
+        } else {
+          return 'PLN nonaktif, genset otomatis aktif, Genset Radar harus aktifkan secara manual';
+        }
+      } else {
+        // Both main gensets active (one operational, one warming up)
+        if (radarActive) {
+          return 'PLN nonaktif, genset otomatis aktif, genset operasional sedang dipanaskan';
+        } else {
+          return 'PLN nonaktif, genset otomatis aktif, genset operasional sedang dipanaskan, Genset Radar harus aktifkan secara manual';
         }
       }
     }

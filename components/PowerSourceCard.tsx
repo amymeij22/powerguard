@@ -33,53 +33,45 @@ export default function PowerSourceCard() {
         }
       };
 
-      // Generate description based on status with new logic
+      // Generate description based on status with updated logic
       const generateDescription = (pln: number, genset135: number, genset150: number, gensetRadar: number) => {
-        const activeGensets = [];
-        const inactiveGensets = [];
-        
-        // Categorize gensets
-        if (genset135) {
-          activeGensets.push('135kVA');
-        } else {
-          inactiveGensets.push('135kVA');
-        }
-        
-        if (genset150) {
-          activeGensets.push('150kVA');
-        } else {
-          inactiveGensets.push('150kVA');
-        }
-        
-        if (gensetRadar) {
-          activeGensets.push('Radar');
-        } else {
-          inactiveGensets.push('Radar');
-        }
-
         if (pln) {
           // PLN aktif
+          const activeGensets = [];
+          if (genset135) activeGensets.push('135kVA');
+          if (genset150) activeGensets.push('150kVA');
+          if (gensetRadar) activeGensets.push('Radar');
+
           if (activeGensets.length === 0) {
-            // PLN aktif, semua genset nonaktif
             return 'PLN aktif, Genset otomatis nonaktif';
           } else {
-            // PLN aktif, ada genset yang aktif
             return `PLN aktif, Genset ${activeGensets.join(', ')} sedang dipanaskan`;
           }
         } else {
           // PLN nonaktif
-          if (inactiveGensets.length === 0) {
-            // PLN nonaktif, semua genset aktif
-            return 'PLN nonaktif, genset otomatis aktif';
-          } else {
-            // PLN nonaktif, ada genset yang nonaktif
-            const activeText = activeGensets.length > 0 ? `Genset ${activeGensets.join(', ')} otomatis nyala` : '';
-            const inactiveText = `Genset ${inactiveGensets.join(', ')} harus aktifkan secara manual`;
-            
-            if (activeGensets.length > 0) {
-              return `PLN nonaktif, ${activeText}, ${inactiveText}`;
+          const mainGensetsActive = genset135 + genset150; // Count active main gensets
+          const radarActive = gensetRadar;
+
+          if (mainGensetsActive === 0) {
+            // No main gensets active
+            if (radarActive) {
+              return 'PLN nonaktif, Genset Radar otomatis nyala, Genset 135kVA dan 150kVA harus aktifkan secara manual';
             } else {
-              return `PLN nonaktif, ${inactiveText}`;
+              return 'PLN nonaktif, Genset 135kVA, 150kVA, dan Radar harus aktifkan secara manual';
+            }
+          } else if (mainGensetsActive === 1) {
+            // One main genset active (normal operation)
+            if (radarActive) {
+              return 'PLN nonaktif, genset otomatis aktif';
+            } else {
+              return 'PLN nonaktif, genset otomatis aktif, Genset Radar harus aktifkan secara manual';
+            }
+          } else {
+            // Both main gensets active (one operational, one warming up)
+            if (radarActive) {
+              return 'PLN nonaktif, genset otomatis aktif, genset operasional sedang dipanaskan';
+            } else {
+              return 'PLN nonaktif, genset otomatis aktif, genset operasional sedang dipanaskan, Genset Radar harus aktifkan secara manual';
             }
           }
         }
@@ -108,20 +100,29 @@ export default function PowerSourceCard() {
         return `${baseClasses} bg-genset text-white`;
       }
     } else {
-      // PLN tidak pernah kedip merah, hanya genset yang kedip saat kondisi kritis
+      // PLN nonaktif - warna abu-abu biasa tanpa animasi
+      if (type === 'pln') {
+        return `${baseClasses} bg-gray-300 dark:bg-gray-600 text-gray-800 dark:text-gray-200`;
+      }
+      
+      // Genset logic with updated rules
       if (type === 'genset') {
-        // Check if this is a critical situation (PLN off and this genset is off)
-        const isCritical = powerStatus.pln === 0 && status === 0;
+        // Check if this is a critical situation for Radar genset only
+        const isCriticalRadar = powerStatus.pln === 0 && status === 0 && gensetType === 'Radar';
         
-        if (isCritical) {
+        // For main gensets (135kVA and 150kVA), only show critical if both are off when PLN is off
+        const isCriticalMainGenset = powerStatus.pln === 0 && status === 0 && 
+          (gensetType === '135kVA' || gensetType === '150kVA') &&
+          powerStatus.genset135 === 0 && powerStatus.genset150 === 0;
+        
+        if (isCriticalRadar || isCriticalMainGenset) {
           return `${baseClasses} bg-gray-300 dark:bg-gray-600 text-gray-800 dark:text-gray-200 critical-blink`;
         } else {
           return `${baseClasses} bg-gray-300 dark:bg-gray-600 text-gray-800 dark:text-gray-200`;
         }
-      } else {
-        // PLN nonaktif - warna abu-abu biasa tanpa animasi
-        return `${baseClasses} bg-gray-300 dark:bg-gray-600 text-gray-800 dark:text-gray-200`;
       }
+      
+      return `${baseClasses} bg-gray-300 dark:bg-gray-600 text-gray-800 dark:text-gray-200`;
     }
   };
 
@@ -129,9 +130,9 @@ export default function PowerSourceCard() {
 
   // Check if description should blink (emergency situation)
   const shouldDescriptionBlink = () => {
+    // Only blink if PLN is off AND both main gensets are off OR radar is off
     return powerStatus.pln === 0 && (
-      powerStatus.genset135 === 0 || 
-      powerStatus.genset150 === 0 || 
+      (powerStatus.genset135 === 0 && powerStatus.genset150 === 0) || 
       powerStatus.gensetRadar === 0
     );
   };
@@ -147,7 +148,7 @@ export default function PowerSourceCard() {
       
       <div className="flex flex-col items-center justify-start py-2 sm:py-4 lg:py-6 flex-grow">
         <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:gap-6 mb-4 w-full max-w-3xl">
-          {/* PLN Status Badge - Tidak pernah kedip merah */}
+          {/* PLN Status Badge */}
           <div className={getStatusBadgeClass(powerStatus.pln, 'pln')}>
             <i className="fas fa-plug text-2xl sm:text-3xl lg:text-4xl mb-1 sm:mb-2"></i>
             <span className="label text-base sm:text-lg lg:text-xl font-medium">PLN</span>
