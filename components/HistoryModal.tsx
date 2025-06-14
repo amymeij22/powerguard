@@ -149,13 +149,13 @@ export default function HistoryModal({ isOpen, onClose, onDetailClick }: History
 
   const getFuelStatusBadge = (level: number) => {
     if (level >= 70) {
-      return 'px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-600 dark:bg-blue-900';
+      return 'px-2 py-1 inline-flex text-xs leading-4 font-semibold rounded-full bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300';
     } else if (level >= 40) {
-      return 'px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-600 dark:bg-green-900';
+      return 'px-2 py-1 inline-flex text-xs leading-4 font-semibold rounded-full bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300';
     } else if (level >= 20) {
-      return 'px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-600 dark:bg-yellow-900';
+      return 'px-2 py-1 inline-flex text-xs leading-4 font-semibold rounded-full bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-300';
     } else {
-      return 'px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-600 dark:bg-red-900';
+      return 'px-2 py-1 inline-flex text-xs leading-4 font-semibold rounded-full bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300';
     }
   };
 
@@ -163,7 +163,7 @@ export default function HistoryModal({ isOpen, onClose, onDetailClick }: History
     if (level >= 70) return 'Normal';
     if (level >= 40) return 'Sedang';
     if (level >= 20) return 'Rendah';
-    return 'Perlu Diisi Ulang';
+    return 'Kritis';
   };
 
   const getTabTitle = () => {
@@ -177,7 +177,7 @@ export default function HistoryModal({ isOpen, onClose, onDetailClick }: History
 
   return (
     <div className="fixed inset-0 z-50 bg-black bg-opacity-50" onClick={handleBackdropClick}>
-      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white dark:bg-gray-800 rounded-xl shadow-2xl max-w-6xl w-full max-h-[90vh] mx-4 flex flex-col overflow-hidden">
+      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white dark:bg-gray-800 rounded-xl shadow-2xl max-w-7xl w-full max-h-[90vh] mx-4 flex flex-col overflow-hidden">
         {/* Modal Header with gradient */}
         <div className="bg-gradient-to-r from-emerald-500 to-emerald-600 p-6 text-white">
           <div className="flex justify-between items-center">
@@ -302,7 +302,7 @@ export default function HistoryModal({ isOpen, onClose, onDetailClick }: History
             </div>
           )}
 
-          {/* Fuel Level History Table - Updated for Dual Tank */}
+          {/* Fuel Level History Table - Enhanced for Dual Tank */}
           {activeTab === 'fuel' && (
             <div className="overflow-x-auto">
               <div className="min-w-full">
@@ -310,8 +310,14 @@ export default function HistoryModal({ isOpen, onClose, onDetailClick }: History
                   <thead className="bg-gray-50 dark:bg-gray-900 sticky top-0">
                     <tr>
                       <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap">Tanggal</th>
-                      <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap">Tangki Reservoir</th>
-                      <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap">Tangki Utama</th>
+                      <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap">
+                        <i className="fas fa-gas-pump mr-1"></i>
+                        Tangki Reservoir
+                      </th>
+                      <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap">
+                        <i className="fas fa-oil-can mr-1"></i>
+                        Tangki Utama
+                      </th>
                       <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap">Status Keseluruhan</th>
                     </tr>
                   </thead>
@@ -328,8 +334,8 @@ export default function HistoryModal({ isOpen, onClose, onDetailClick }: History
                             {formatDisplayDateTime(level.datetime)}
                           </td>
                           <td className="px-3 py-3 whitespace-nowrap">
-                            <div className="flex flex-col">
-                              <span className="text-sm font-medium text-gray-900 dark:text-white">
+                            <div className="flex flex-col space-y-1">
+                              <span className="text-sm font-bold text-gray-900 dark:text-white">
                                 {reservoirLevel}%
                               </span>
                               <span className={getFuelStatusBadge(reservoirLevel)}>
@@ -338,8 +344,8 @@ export default function HistoryModal({ isOpen, onClose, onDetailClick }: History
                             </div>
                           </td>
                           <td className="px-3 py-3 whitespace-nowrap">
-                            <div className="flex flex-col">
-                              <span className="text-sm font-medium text-gray-900 dark:text-white">
+                            <div className="flex flex-col space-y-1">
+                              <span className="text-sm font-bold text-gray-900 dark:text-white">
                                 {drumLevel}%
                               </span>
                               <span className={getFuelStatusBadge(drumLevel)}>
@@ -348,9 +354,14 @@ export default function HistoryModal({ isOpen, onClose, onDetailClick }: History
                             </div>
                           </td>
                           <td className="px-3 py-3 whitespace-nowrap">
-                            <span className={getFuelStatusBadge(overallStatus)}>
-                              {getFuelStatusText(overallStatus)}
-                            </span>
+                            <div className="flex flex-col space-y-1">
+                              <span className="text-sm font-bold text-gray-900 dark:text-white">
+                                {overallStatus}%
+                              </span>
+                              <span className={getFuelStatusBadge(overallStatus)}>
+                                {getFuelStatusText(overallStatus)}
+                              </span>
+                            </div>
                           </td>
                         </tr>
                       );
