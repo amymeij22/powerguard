@@ -122,7 +122,7 @@ export default function FuelLevelCard() {
       </div>
       
       {/* Large Fuel Tank */}
-      <div className="relative w-20 sm:w-24 lg:w-28 h-48 sm:h-56 lg:h-64 mb-4">
+      <div className="relative w-28 sm:w-36 lg:w-44 h-48 sm:h-56 lg:h-64 mb-4">
         <div className="relative w-full h-full flex items-center justify-center">
           {/* Fuel Tank Body with enhanced 3D effect */}
           <div className="relative w-full h-[90%] rounded-3xl bg-gradient-to-br from-gray-300 via-gray-200 to-gray-100 dark:from-gray-700 dark:via-gray-600 dark:to-gray-500 shadow-2xl overflow-hidden" 
