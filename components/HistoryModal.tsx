@@ -89,13 +89,32 @@ export default function HistoryModal({ isOpen, onClose, onDetailClick }: History
       downloadCSV(csvData, `riwayat_status_listrik_${timestamp}.csv`, 
         ['Tanggal', 'Status PLN', 'Genset 135kVA', 'Genset 150kVA', 'Genset Radar']);
     } else if (activeTab === 'fuel') {
-      const csvData = fuelHistory.map(level => ({
-        tanggal: formatDisplayDateTime(level.datetime),
-        level_minyak: `${level.level}%`,
-        status: getFuelStatusText(level.level)
-      }));
+      const csvData = fuelHistory.map(level => {
+        // Handle both old and new format
+        if (level.reservoir !== undefined && level.drum !== undefined) {
+          // New dual tank format
+          return {
+            tanggal: formatDisplayDateTime(level.datetime),
+            tangki_reservoir: `${level.reservoir}%`,
+            tangki_utama: `${level.drum}%`,
+            status_reservoir: getFuelStatusText(level.reservoir),
+            status_utama: getFuelStatusText(level.drum),
+            status_keseluruhan: getFuelStatusText(Math.min(level.reservoir, level.drum))
+          };
+        } else {
+          // Old single level format
+          return {
+            tanggal: formatDisplayDateTime(level.datetime),
+            tangki_reservoir: level.level ? `${level.level}%` : 'N/A',
+            tangki_utama: 'N/A',
+            status_reservoir: level.level ? getFuelStatusText(level.level) : 'N/A',
+            status_utama: 'N/A',
+            status_keseluruhan: level.level ? getFuelStatusText(level.level) : 'N/A'
+          };
+        }
+      });
       downloadCSV(csvData, `riwayat_level_minyak_${timestamp}.csv`, 
-        ['Tanggal', 'Level Minyak', 'Status']);
+        ['Tanggal', 'Tangki Reservoir', 'Tangki Utama', 'Status Reservoir', 'Status Utama', 'Status Keseluruhan']);
     } else if (activeTab === 'refill') {
       const csvData = refillHistory.map(refill => ({
         tanggal: refill.date,
@@ -283,34 +302,59 @@ export default function HistoryModal({ isOpen, onClose, onDetailClick }: History
             </div>
           )}
 
-          {/* Fuel Level History Table */}
+          {/* Fuel Level History Table - Updated for Dual Tank */}
           {activeTab === 'fuel' && (
             <div className="overflow-x-auto">
               <div className="min-w-full">
                 <table className="w-full divide-y divide-gray-200 dark:divide-gray-700">
                   <thead className="bg-gray-50 dark:bg-gray-900 sticky top-0">
                     <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap">Tanggal</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap">Level Minyak</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap">Status</th>
+                      <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap">Tanggal</th>
+                      <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap">Tangki Reservoir</th>
+                      <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap">Tangki Utama</th>
+                      <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap">Status Keseluruhan</th>
                     </tr>
                   </thead>
                   <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-                    {fuelHistory.map((level) => (
-                      <tr key={level.id} className="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                          {formatDisplayDateTime(level.datetime)}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
-                          {level.level}%
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <span className={getFuelStatusBadge(level.level)}>
-                            {getFuelStatusText(level.level)}
-                          </span>
-                        </td>
-                      </tr>
-                    ))}
+                    {fuelHistory.map((level) => {
+                      // Handle both old and new format
+                      const reservoirLevel = level.reservoir !== undefined ? level.reservoir : (level.level || 0);
+                      const drumLevel = level.drum !== undefined ? level.drum : (level.level ? Math.max(0, level.level - 10) : 0);
+                      const overallStatus = Math.min(reservoirLevel, drumLevel);
+                      
+                      return (
+                        <tr key={level.id} className="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                          <td className="px-3 py-3 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                            {formatDisplayDateTime(level.datetime)}
+                          </td>
+                          <td className="px-3 py-3 whitespace-nowrap">
+                            <div className="flex flex-col">
+                              <span className="text-sm font-medium text-gray-900 dark:text-white">
+                                {reservoirLevel}%
+                              </span>
+                              <span className={getFuelStatusBadge(reservoirLevel)}>
+                                {getFuelStatusText(reservoirLevel)}
+                              </span>
+                            </div>
+                          </td>
+                          <td className="px-3 py-3 whitespace-nowrap">
+                            <div className="flex flex-col">
+                              <span className="text-sm font-medium text-gray-900 dark:text-white">
+                                {drumLevel}%
+                              </span>
+                              <span className={getFuelStatusBadge(drumLevel)}>
+                                {getFuelStatusText(drumLevel)}
+                              </span>
+                            </div>
+                          </td>
+                          <td className="px-3 py-3 whitespace-nowrap">
+                            <span className={getFuelStatusBadge(overallStatus)}>
+                              {getFuelStatusText(overallStatus)}
+                            </span>
+                          </td>
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>

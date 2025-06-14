@@ -10,7 +10,9 @@ export interface PowerStatus {
 }
 
 export interface FuelLevel {
-  level: number;
+  reservoir?: number; // New dual tank format
+  drum?: number; // New dual tank format
+  level?: number; // Old single level format (for backward compatibility)
   datetime: string;
 }
 

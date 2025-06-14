@@ -66,13 +66,15 @@ const generateRandomPowerStatus = () => {
   };
 };
 
-// Function to generate random fuel level
-const generateRandomFuelLevel = () => {
-  // Generate fuel level between 20-95%
-  const level = Math.floor(Math.random() * 76) + 20;
+// Function to generate random dual fuel level
+const generateRandomDualFuelLevel = () => {
+  // Generate fuel levels between 20-95% for both tanks
+  const reservoir = Math.floor(Math.random() * 76) + 20;
+  const drum = Math.floor(Math.random() * 76) + 20;
   
   return {
-    level: level,
+    reservoir: reservoir,
+    drum: drum,
     datetime: formatDateTime()
   };
 };
@@ -97,15 +99,15 @@ const addPowerStatus = async (status) => {
   }
 };
 
-// Function to add fuel level to Firebase
-const addFuelLevel = async (level) => {
+// Function to add dual fuel level to Firebase
+const addDualFuelLevel = async (level) => {
   try {
     const levelRef = ref(database, 'level');
     const newLevelRef = push(levelRef);
     await set(newLevelRef, level);
-    console.log('✅ Fuel level added:', level);
+    console.log('✅ Dual fuel level added:', level);
   } catch (error) {
-    console.error('❌ Error adding fuel level:', error);
+    console.error('❌ Error adding dual fuel level:', error);
   }
 };
 
@@ -185,13 +187,13 @@ const createInitialSystemStatus = async () => {
 const startDataSimulation = () => {
   console.log('🚀 Starting PowerGuard data simulation...');
   console.log('📊 Power status updates every 10 seconds');
-  console.log('⛽ Fuel level updates every 10 seconds');
+  console.log('⛽ Dual fuel level updates every 10 seconds');
   console.log('🌐 System status updates every 10 seconds');
   console.log('🛑 Press Ctrl+C to stop simulation\n');
 
   // Send initial data immediately
   addPowerStatus(generateRandomPowerStatus());
-  addFuelLevel(generateRandomFuelLevel());
+  addDualFuelLevel(generateRandomDualFuelLevel());
   updateSystemStatus(generateSystemStatus());
 
   // Set up intervals for continuous data sending
@@ -200,7 +202,7 @@ const startDataSimulation = () => {
   }, 10000); // Every 10 seconds
 
   const fuelLevelInterval = setInterval(() => {
-    addFuelLevel(generateRandomFuelLevel());
+    addDualFuelLevel(generateRandomDualFuelLevel());
   }, 10000); // Every 10 seconds
 
   const systemStatusInterval = setInterval(() => {
