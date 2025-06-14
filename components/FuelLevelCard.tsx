@@ -87,7 +87,7 @@ export default function FuelLevelCard() {
         </h3>
       </div>
 
-      <div className="relative w-28 sm:w-36 lg:w-44 h-48 sm:h-56 lg:h-64 mb-4">
+      <div className="relative w-36 sm:w-36 lg:w-44 h-52 sm:h-56 lg:h-64 mb-4">
         <div className="relative w-full h-full flex items-center justify-center">
           <div className="relative w-full h-[90%] rounded-3xl bg-gradient-to-br from-gray-300 via-gray-200 to-gray-100 dark:from-gray-700 dark:via-gray-600 dark:to-gray-500 shadow-2xl overflow-hidden"
                style={{ boxShadow: 'inset 0 8px 16px rgba(0,0,0,0.15), 0 12px 32px rgba(0,0,0,0.25), 0 4px 8px rgba(0,0,0,0.1)' }}>
