@@ -76,7 +76,7 @@ export default function FuelLevelCard() {
     if (level >= 70) return 'Normal';
     if (level >= 40) return 'Sedang';
     if (level >= 20) return 'Rendah';
-    return 'Kritis';
+    return 'Perlu Pengisian';
   };
 
   const renderFuelTank = (level: number, title: string, icon: string) => (
