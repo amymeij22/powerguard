@@ -140,7 +140,8 @@ export default function FuelLevelCard() {
       </div>
 
       <div className="flex flex-col items-center justify-center flex-grow">
-        <div className="flex justify-center items-start gap-8 sm:gap-12 lg:gap-16 w-full">
+        <div className="flex flex-col sm:flex-row justify-center items-center sm:items-start gap-8 sm:gap-12 lg:gap-16 w-full">
+
           {renderFuelTank(fuelLevels.reservoir, 'Tangki Reservoir', 'fas fa-gas-pump')}
           {renderFuelTank(fuelLevels.drum, 'Tangki Utama', 'fas fa-oil-can')}
         </div>
