@@ -372,22 +372,19 @@ export default function AddDataModal({ isOpen, onClose }: AddDataModalProps) {
                     <i className="fas fa-battery-full mr-2 text-emerald-500"></i>
                     Tipe Baterai
                   </label>
-                  <select
-                    id="battery-type" 
-                    name="battery_type" 
+                  <input
+                    type="text"
+                    id="battery-type"
+                    name="battery_type"
                     value={batteryFormData.battery_type}
                     onChange={handleBatteryInputChange}
                     disabled={isSubmitting}
-                    className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 dark:bg-gray-700 dark:text-white disabled:opacity-50 transition-all duration-200" 
+                    className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 dark:bg-gray-700 dark:text-white disabled:opacity-50 transition-all duration-200"
+                    placeholder="Masukkan tipe baterai"
                     required
-                  >
-                    <option value="">Pilih tipe baterai</option>
-                    <option value="Lithium">Lithium</option>
-                    <option value="Lead Acid">Lead Acid</option>
-                    <option value="Alkaline">Alkaline</option>
-                    <option value="Lainnya">Lainnya</option>
-                  </select>
+                  />
                 </div>
+
                 
                 {/* Notes Input */}
                 <div className="space-y-2">
