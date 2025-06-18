@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { getAllPowerStatus, getAllFuelLevels, getAllFuelRefills, PowerStatus, FuelLevel, FuelRefill } from '@/lib/firebaseService';
+import { getAllPowerStatus, getAllFuelLevels, getAllFuelRefills, getAllBatteryReplacements, getAllMaintenance, PowerStatus, FuelLevel, FuelRefill, BatteryReplacement, Maintenance } from '@/lib/firebaseService';
 
 interface HistoryModalProps {
   isOpen: boolean;
@@ -14,6 +14,8 @@ export default function HistoryModal({ isOpen, onClose, onDetailClick }: History
   const [powerHistory, setPowerHistory] = useState<(PowerStatus & { id: string })[]>([]);
   const [fuelHistory, setFuelHistory] = useState<(FuelLevel & { id: string })[]>([]);
   const [refillHistory, setRefillHistory] = useState<(FuelRefill & { id: string })[]>([]);
+  const [batteryHistory, setBatteryHistory] = useState<(BatteryReplacement & { id: string })[]>([]);
+  const [maintenanceHistory, setMaintenanceHistory] = useState<(Maintenance & { id: string })[]>([]);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -33,10 +35,22 @@ export default function HistoryModal({ isOpen, onClose, onDetailClick }: History
       setRefillHistory(refills);
     });
 
+    // Subscribe to battery replacement history
+    const unsubscribeBattery = getAllBatteryReplacements((replacements) => {
+      setBatteryHistory(replacements);
+    });
+
+    // Subscribe to maintenance history
+    const unsubscribeMaintenance = getAllMaintenance((maintenances) => {
+      setMaintenanceHistory(maintenances);
+    });
+
     return () => {
       unsubscribePower();
       unsubscribeFuel();
       unsubscribeRefill();
+      unsubscribeBattery();
+      unsubscribeMaintenance();
     };
   }, [isOpen]);
 
@@ -123,6 +137,23 @@ export default function HistoryModal({ isOpen, onClose, onDetailClick }: History
       }));
       downloadCSV(csvData, `riwayat_pengisian_minyak_${timestamp}.csv`, 
         ['Tanggal', 'Waktu', 'Jumlah Liter']);
+    } else if (activeTab === 'battery') {
+      const csvData = batteryHistory.map(battery => ({
+        tanggal: battery.date,
+        waktu: battery.time,
+        tipe_baterai: battery.battery_type,
+        catatan: battery.notes
+      }));
+      downloadCSV(csvData, `riwayat_penggantian_baterai_${timestamp}.csv`, 
+        ['Tanggal', 'Waktu', 'Tipe Baterai', 'Catatan']);
+    } else if (activeTab === 'maintenance') {
+      const csvData = maintenanceHistory.map(maintenance => ({
+        tanggal: maintenance.date,
+        waktu: maintenance.time,
+        catatan: maintenance.note
+      }));
+      downloadCSV(csvData, `riwayat_maintenance_${timestamp}.csv`, 
+        ['Tanggal', 'Waktu', 'Catatan']);
     }
   };
 
@@ -171,7 +202,20 @@ export default function HistoryModal({ isOpen, onClose, onDetailClick }: History
       case 'power': return 'Status Sumber Listrik';
       case 'fuel': return 'Level Minyak';
       case 'refill': return 'Pengisian Minyak';
+      case 'battery': return 'Penggantian Baterai';
+      case 'maintenance': return 'Maintenance';
       default: return 'Data';
+    }
+  };
+
+  const getDataCount = () => {
+    switch (activeTab) {
+      case 'power': return powerHistory.length;
+      case 'fuel': return fuelHistory.length;
+      case 'refill': return refillHistory.length;
+      case 'battery': return batteryHistory.length;
+      case 'maintenance': return maintenanceHistory.length;
+      default: return 0;
     }
   };
 
@@ -239,6 +283,28 @@ export default function HistoryModal({ isOpen, onClose, onDetailClick }: History
             >
               <i className="fas fa-plus-circle mr-2"></i>
               Pengisian Minyak
+            </button>
+            <button 
+              onClick={() => setActiveTab('battery')}
+              className={`px-4 py-2.5 rounded-lg transition-all text-sm font-medium ${
+                activeTab === 'battery' 
+                  ? 'bg-emerald-500 text-white shadow-lg' 
+                  : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+              }`}
+            >
+              <i className="fas fa-battery-full mr-2"></i>
+              Penggantian Baterai
+            </button>
+            <button 
+              onClick={() => setActiveTab('maintenance')}
+              className={`px-4 py-2.5 rounded-lg transition-all text-sm font-medium ${
+                activeTab === 'maintenance' 
+                  ? 'bg-emerald-500 text-white shadow-lg' 
+                  : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+              }`}
+            >
+              <i className="fas fa-tools mr-2"></i>
+              Maintenance
             </button>
           </div>
         </div>
@@ -403,17 +469,85 @@ export default function HistoryModal({ isOpen, onClose, onDetailClick }: History
               </div>
             </div>
           )}
+
+          {/* Battery Replacement History Table */}
+          {activeTab === 'battery' && (
+            <div className="overflow-x-auto">
+              <div className="min-w-full">
+                <table className="w-full divide-y divide-gray-200 dark:divide-gray-700">
+                  <thead className="bg-gray-50 dark:bg-gray-900 sticky top-0">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap">Tanggal</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap">Waktu</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap">Tipe Baterai</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap">Catatan</th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                    {batteryHistory.map((battery) => (
+                      <tr key={battery.id} className="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                          {battery.date}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                          {battery.time}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <span className="px-2 py-1 inline-flex text-xs leading-4 font-semibold rounded-full bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300">
+                            {battery.battery_type}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 text-sm text-gray-900 dark:text-white max-w-xs truncate">
+                          {battery.notes}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
+          {/* Maintenance History Table */}
+          {activeTab === 'maintenance' && (
+            <div className="overflow-x-auto">
+              <div className="min-w-full">
+                <table className="w-full divide-y divide-gray-200 dark:divide-gray-700">
+                  <thead className="bg-gray-50 dark:bg-gray-900 sticky top-0">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap">Tanggal</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap">Waktu</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap">Catatan Maintenance</th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                    {maintenanceHistory.map((maintenance) => (
+                      <tr key={maintenance.id} className="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                          {maintenance.date}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                          {maintenance.time}
+                        </td>
+                        <td className="px-6 py-4 text-sm text-gray-900 dark:text-white max-w-md">
+                          <div className="break-words">
+                            {maintenance.note}
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
         </div>
         
         {/* Modal Footer */}
         <div className="bg-gray-50 dark:bg-gray-700 px-6 py-4 flex justify-between items-center">
           <div className="text-sm text-gray-500 dark:text-gray-400">
             <i className="fas fa-info-circle mr-1"></i>
-            Total data: {
-              activeTab === 'power' ? powerHistory.length :
-              activeTab === 'fuel' ? fuelHistory.length :
-              refillHistory.length
-            } entri
+            Total data: {getDataCount()} entri
           </div>
           <button 
             onClick={onClose}
