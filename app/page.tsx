@@ -4,14 +4,14 @@ import { useState, useEffect } from 'react';
 import PowerSourceCard from '@/components/PowerSourceCard';
 import FuelLevelCard from '@/components/FuelLevelCard';
 import HistoryModal from '@/components/HistoryModal';
-import AddFuelModal from '@/components/AddFuelModal';
+import AddDataModal from '@/components/AddDataModal';
 import DetailStatusModal from '@/components/DetailStatusModal';
 import SystemStatusIndicator from '@/components/SystemStatusIndicator';
 
 export default function Home() {
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [showHistoryModal, setShowHistoryModal] = useState(false);
-  const [showAddFuelModal, setShowAddFuelModal] = useState(false);
+  const [showAddDataModal, setShowAddDataModal] = useState(false);
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [selectedDetailId, setSelectedDetailId] = useState<string>('');
 
@@ -60,11 +60,11 @@ export default function Home() {
           <div className="flex items-center space-x-4">
             <SystemStatusIndicator />
             <button
-              onClick={() => setShowAddFuelModal(true)}
+              onClick={() => setShowAddDataModal(true)}
               className="w-9 h-9 flex items-center justify-center rounded-full bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600 transition-all"
-              title="Tambah Data Pengisian"
+              title="Tambah Data"
             >
-              <i className="fas fa-gas-pump"></i>
+              <i className="fas fa-plus"></i>
             </button>
             <button
               onClick={() => setShowHistoryModal(true)}
@@ -109,9 +109,9 @@ export default function Home() {
         onClose={() => setShowHistoryModal(false)} 
         onDetailClick={handleDetailClick}
       />
-      <AddFuelModal 
-        isOpen={showAddFuelModal} 
-        onClose={() => setShowAddFuelModal(false)} 
+      <AddDataModal 
+        isOpen={showAddDataModal} 
+        onClose={() => setShowAddDataModal(false)} 
       />
       <DetailStatusModal 
         isOpen={showDetailModal} 

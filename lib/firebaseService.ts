@@ -22,6 +22,19 @@ export interface FuelRefill {
   amount: number;
 }
 
+export interface BatteryReplacement {
+  date: string;
+  time: string;
+  battery_type: string;
+  notes: string;
+}
+
+export interface Maintenance {
+  date: string;
+  time: string;
+  note: string;
+}
+
 export interface SystemStatus {
   isOnline: number;
   datetime: string;
@@ -155,6 +168,78 @@ export const getAllFuelRefills = (callback: (refills: (FuelRefill & { id: string
   });
 
   return () => off(fuelRef, 'value', unsubscribe);
+};
+
+// Battery Replacement Functions
+export const addBatteryReplacement = async (replacement: BatteryReplacement) => {
+  try {
+    const batteryRef = ref(database, 'battery');
+    const newBatteryRef = push(batteryRef);
+    await set(newBatteryRef, replacement);
+    return newBatteryRef.key;
+  } catch (error) {
+    console.error('Error adding battery replacement:', error);
+    throw error;
+  }
+};
+
+export const getAllBatteryReplacements = (callback: (replacements: (BatteryReplacement & { id: string })[]) => void) => {
+  const batteryRef = ref(database, 'battery');
+  
+  const unsubscribe = onValue(batteryRef, (snapshot) => {
+    if (snapshot.exists()) {
+      const data = snapshot.val();
+      const replacements = Object.keys(data).map(key => ({
+        ...data[key],
+        id: key
+      })).sort((a, b) => {
+        const dateA = new Date(`${a.date} ${a.time}`);
+        const dateB = new Date(`${b.date} ${b.time}`);
+        return dateB.getTime() - dateA.getTime();
+      });
+      callback(replacements);
+    } else {
+      callback([]);
+    }
+  });
+
+  return () => off(batteryRef, 'value', unsubscribe);
+};
+
+// Maintenance Functions
+export const addMaintenance = async (maintenance: Maintenance) => {
+  try {
+    const maintenanceRef = ref(database, 'maintenance');
+    const newMaintenanceRef = push(maintenanceRef);
+    await set(newMaintenanceRef, maintenance);
+    return newMaintenanceRef.key;
+  } catch (error) {
+    console.error('Error adding maintenance:', error);
+    throw error;
+  }
+};
+
+export const getAllMaintenance = (callback: (maintenances: (Maintenance & { id: string })[]) => void) => {
+  const maintenanceRef = ref(database, 'maintenance');
+  
+  const unsubscribe = onValue(maintenanceRef, (snapshot) => {
+    if (snapshot.exists()) {
+      const data = snapshot.val();
+      const maintenances = Object.keys(data).map(key => ({
+        ...data[key],
+        id: key
+      })).sort((a, b) => {
+        const dateA = new Date(`${a.date} ${a.time}`);
+        const dateB = new Date(`${b.date} ${b.time}`);
+        return dateB.getTime() - dateA.getTime();
+      });
+      callback(maintenances);
+    } else {
+      callback([]);
+    }
+  });
+
+  return () => off(maintenanceRef, 'value', unsubscribe);
 };
 
 // System Status Functions
