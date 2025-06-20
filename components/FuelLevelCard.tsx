@@ -157,8 +157,8 @@ export default function FuelLevelCard() {
       <div className="flex flex-col items-center justify-center flex-grow">
         {/* Desktop: 3 tanks in one row, Mobile: 1 tank per row */}
         <div className="flex flex-col md:flex-row justify-center items-center md:items-start gap-4 md:gap-6 lg:gap-8 w-full">
-          {renderFuelTank(fuelLevels.tangki_135kva, 'Tangki 135', 'fas fa-gas-pump')}
-          {renderFuelTank(fuelLevels.tangki_150kva, 'Tangki 150', 'fas fa-gas-pump')}
+          {renderFuelTank(fuelLevels.tangki_135kva, 'Tangki 135kVA', 'fas fa-gas-pump')}
+          {renderFuelTank(fuelLevels.tangki_150kva, 'Tangki 150kVA', 'fas fa-gas-pump')}
           {renderFuelTank(fuelLevels.tangki_radar, 'Tangki Radar', 'fas fa-gas-pump')}
         </div>
       </div>
