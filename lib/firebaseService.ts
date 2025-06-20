@@ -10,8 +10,11 @@ export interface PowerStatus {
 }
 
 export interface FuelLevel {
-  reservoir?: number; // New dual tank format
-  drum?: number; // New dual tank format
+  tangki_135kva?: number; // New three tank format
+  tangki_150kva?: number; // New three tank format
+  tangki_radar?: number; // New three tank format
+  reservoir?: number; // Old dual tank format (for backward compatibility)
+  drum?: number; // Old dual tank format (for backward compatibility)
   level?: number; // Old single level format (for backward compatibility)
   datetime: string;
 }
@@ -77,7 +80,12 @@ export const getAllPowerStatus = (callback: (statuses: (PowerStatus & { id: stri
       const statuses = Object.keys(data).map(key => ({
         ...data[key],
         id: key
-      })).sort((a, b) => new Date(b.datetime).getTime() - new Date(a.datetime).getTime());
+      })).sort((a, b) => {
+        // Sort by datetime (newest first)
+        const dateA = parseDatetime(a.datetime);
+        const dateB = parseDatetime(b.datetime);
+        return dateB.getTime() - dateA.getTime();
+      });
       callback(statuses);
     } else {
       callback([]);
@@ -124,7 +132,12 @@ export const getAllFuelLevels = (callback: (levels: (FuelLevel & { id: string })
       const levels = Object.keys(data).map(key => ({
         ...data[key],
         id: key
-      })).sort((a, b) => new Date(b.datetime).getTime() - new Date(a.datetime).getTime());
+      })).sort((a, b) => {
+        // Sort by datetime (newest first)
+        const dateA = parseDatetime(a.datetime);
+        const dateB = parseDatetime(b.datetime);
+        return dateB.getTime() - dateA.getTime();
+      });
       callback(levels);
     } else {
       callback([]);
@@ -157,8 +170,9 @@ export const getAllFuelRefills = (callback: (refills: (FuelRefill & { id: string
         ...data[key],
         id: key
       })).sort((a, b) => {
-        const dateA = new Date(`${a.date} ${a.time}`);
-        const dateB = new Date(`${b.date} ${b.time}`);
+        // Sort by datetime (newest first)
+        const dateA = parseDatetime(`${a.date} ${a.time}`);
+        const dateB = parseDatetime(`${b.date} ${b.time}`);
         return dateB.getTime() - dateA.getTime();
       });
       callback(refills);
@@ -193,8 +207,9 @@ export const getAllBatteryReplacements = (callback: (replacements: (BatteryRepla
         ...data[key],
         id: key
       })).sort((a, b) => {
-        const dateA = new Date(`${a.date} ${a.time}`);
-        const dateB = new Date(`${b.date} ${b.time}`);
+        // Sort by datetime (newest first)
+        const dateA = parseDatetime(`${a.date} ${a.time}`);
+        const dateB = parseDatetime(`${b.date} ${b.time}`);
         return dateB.getTime() - dateA.getTime();
       });
       callback(replacements);
@@ -229,8 +244,9 @@ export const getAllMaintenance = (callback: (maintenances: (Maintenance & { id: 
         ...data[key],
         id: key
       })).sort((a, b) => {
-        const dateA = new Date(`${a.date} ${a.time}`);
-        const dateB = new Date(`${b.date} ${b.time}`);
+        // Sort by datetime (newest first)
+        const dateA = parseDatetime(`${a.date} ${a.time}`);
+        const dateB = parseDatetime(`${b.date} ${b.time}`);
         return dateB.getTime() - dateA.getTime();
       });
       callback(maintenances);
@@ -329,6 +345,60 @@ export const isSystemOnline = (datetime: string): boolean => {
     console.error('Error parsing datetime:', error);
     return false;
   }
+};
+
+// Utility function to parse datetime string to Date object
+export const parseDatetime = (datetime: string): Date => {
+  try {
+    const [datePart, timePart] = datetime.split(' ');
+    if (!datePart || !timePart) {
+      return new Date(0); // Return epoch if invalid
+    }
+    
+    const [day, month, year] = datePart.split('/');
+    const [hours, minutes, seconds] = timePart.split(':');
+    
+    if (!day || !month || !year || !hours || !minutes) {
+      return new Date(0); // Return epoch if invalid
+    }
+    
+    return new Date(
+      parseInt(year),
+      parseInt(month) - 1, // Month is 0-indexed
+      parseInt(day),
+      parseInt(hours),
+      parseInt(minutes),
+      parseInt(seconds || '0')
+    );
+  } catch (error) {
+    console.error('Error parsing datetime:', error);
+    return new Date(0);
+  }
+};
+
+// Utility function to filter data by date range
+export const filterDataByDateRange = <T extends { datetime?: string; date?: string; time?: string }>(
+  data: T[], 
+  days: number | null
+): T[] => {
+  if (days === null) return data; // Return all data if no filter
+  
+  const now = new Date();
+  const cutoffDate = new Date(now.getTime() - (days * 24 * 60 * 60 * 1000));
+  
+  return data.filter(item => {
+    let itemDate: Date;
+    
+    if (item.datetime) {
+      itemDate = parseDatetime(item.datetime);
+    } else if (item.date && item.time) {
+      itemDate = parseDatetime(`${item.date} ${item.time}`);
+    } else {
+      return false;
+    }
+    
+    return itemDate >= cutoffDate;
+  });
 };
 
 // Utility function to format datetime

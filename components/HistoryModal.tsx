@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { getAllPowerStatus, getAllFuelLevels, getAllFuelRefills, getAllBatteryReplacements, getAllMaintenance, PowerStatus, FuelLevel, FuelRefill, BatteryReplacement, Maintenance } from '@/lib/firebaseService';
+import { getAllPowerStatus, getAllFuelLevels, getAllFuelRefills, getAllBatteryReplacements, getAllMaintenance, PowerStatus, FuelLevel, FuelRefill, BatteryReplacement, Maintenance, filterDataByDateRange } from '@/lib/firebaseService';
 
 interface HistoryModalProps {
   isOpen: boolean;
@@ -11,38 +11,46 @@ interface HistoryModalProps {
 
 export default function HistoryModal({ isOpen, onClose, onDetailClick }: HistoryModalProps) {
   const [activeTab, setActiveTab] = useState('power');
+  const [dateFilter, setDateFilter] = useState<number | null>(null); // null = all data
   const [powerHistory, setPowerHistory] = useState<(PowerStatus & { id: string })[]>([]);
   const [fuelHistory, setFuelHistory] = useState<(FuelLevel & { id: string })[]>([]);
   const [refillHistory, setRefillHistory] = useState<(FuelRefill & { id: string })[]>([]);
   const [batteryHistory, setBatteryHistory] = useState<(BatteryReplacement & { id: string })[]>([]);
   const [maintenanceHistory, setMaintenanceHistory] = useState<(Maintenance & { id: string })[]>([]);
 
+  // Store original data for filtering
+  const [originalPowerHistory, setOriginalPowerHistory] = useState<(PowerStatus & { id: string })[]>([]);
+  const [originalFuelHistory, setOriginalFuelHistory] = useState<(FuelLevel & { id: string })[]>([]);
+  const [originalRefillHistory, setOriginalRefillHistory] = useState<(FuelRefill & { id: string })[]>([]);
+  const [originalBatteryHistory, setOriginalBatteryHistory] = useState<(BatteryReplacement & { id: string })[]>([]);
+  const [originalMaintenanceHistory, setOriginalMaintenanceHistory] = useState<(Maintenance & { id: string })[]>([]);
+
   useEffect(() => {
     if (!isOpen) return;
 
     // Subscribe to power status history
     const unsubscribePower = getAllPowerStatus((statuses) => {
-      setPowerHistory(statuses);
+      setOriginalPowerHistory(statuses);
     });
 
     // Subscribe to fuel level history
     const unsubscribeFuel = getAllFuelLevels((levels) => {
-      setFuelHistory(levels);
+      setOriginalFuelHistory(levels);
     });
 
     // Subscribe to fuel refill history
     const unsubscribeRefill = getAllFuelRefills((refills) => {
-      setRefillHistory(refills);
+      setOriginalRefillHistory(refills);
     });
 
     // Subscribe to battery replacement history
     const unsubscribeBattery = getAllBatteryReplacements((replacements) => {
-      setBatteryHistory(replacements);
+      setOriginalBatteryHistory(replacements);
     });
 
     // Subscribe to maintenance history
     const unsubscribeMaintenance = getAllMaintenance((maintenances) => {
-      setMaintenanceHistory(maintenances);
+      setOriginalMaintenanceHistory(maintenances);
     });
 
     return () => {
@@ -53,6 +61,15 @@ export default function HistoryModal({ isOpen, onClose, onDetailClick }: History
       unsubscribeMaintenance();
     };
   }, [isOpen]);
+
+  // Apply date filter whenever original data or filter changes
+  useEffect(() => {
+    setPowerHistory(filterDataByDateRange(originalPowerHistory, dateFilter));
+    setFuelHistory(filterDataByDateRange(originalFuelHistory, dateFilter));
+    setRefillHistory(filterDataByDateRange(originalRefillHistory, dateFilter));
+    setBatteryHistory(filterDataByDateRange(originalBatteryHistory, dateFilter));
+    setMaintenanceHistory(filterDataByDateRange(originalMaintenanceHistory, dateFilter));
+  }, [originalPowerHistory, originalFuelHistory, originalRefillHistory, originalBatteryHistory, originalMaintenanceHistory, dateFilter]);
 
   // Handle click outside modal
   const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -88,9 +105,18 @@ export default function HistoryModal({ isOpen, onClose, onDetailClick }: History
     document.body.removeChild(link);
   };
 
+  const getFilterSuffix = () => {
+    if (dateFilter === null) return 'semua_data';
+    if (dateFilter === 1) return '1_hari';
+    if (dateFilter === 7) return '7_hari';
+    if (dateFilter === 30) return '30_hari';
+    return `${dateFilter}_hari`;
+  };
+
   const handleDownloadData = () => {
     const now = new Date();
     const timestamp = now.toISOString().split('T')[0];
+    const filterSuffix = getFilterSuffix();
 
     if (activeTab === 'power') {
       const csvData = powerHistory.map(status => ({
@@ -100,42 +126,59 @@ export default function HistoryModal({ isOpen, onClose, onDetailClick }: History
         genset_150kva: status.genset_150 === 1 ? 'Aktif' : 'Nonaktif',
         genset_radar: status.genset_radar === 1 ? 'Aktif' : 'Nonaktif'
       }));
-      downloadCSV(csvData, `riwayat_status_listrik_${timestamp}.csv`, 
+      downloadCSV(csvData, `riwayat_status_listrik_${filterSuffix}_${timestamp}.csv`, 
         ['Tanggal', 'Status PLN', 'Genset 135kVA', 'Genset 150kVA', 'Genset Radar']);
     } else if (activeTab === 'fuel') {
       const csvData = fuelHistory.map(level => {
-        // Handle both old and new format
-        if (level.reservoir !== undefined && level.drum !== undefined) {
-          // New dual tank format
+        // Handle new three tank format
+        if (level.tangki_135kva !== undefined && level.tangki_150kva !== undefined && level.tangki_radar !== undefined) {
           return {
             tanggal: formatDisplayDateTime(level.datetime),
-            tangki_reservoir: `${level.reservoir}%`,
-            tangki_utama: `${level.drum}%`,
-            status_reservoir: getFuelStatusText(level.reservoir),
-            status_utama: getFuelStatusText(level.drum),
+            tangki_135kva: `${level.tangki_135kva}%`,
+            tangki_150kva: `${level.tangki_150kva}%`,
+            tangki_radar: `${level.tangki_radar}%`,
+            status_135kva: getFuelStatusText(level.tangki_135kva),
+            status_150kva: getFuelStatusText(level.tangki_150kva),
+            status_radar: getFuelStatusText(level.tangki_radar),
+            status_keseluruhan: getFuelStatusText(Math.min(level.tangki_135kva, level.tangki_150kva, level.tangki_radar))
+          };
+        }
+        // Handle old dual tank format
+        else if (level.reservoir !== undefined && level.drum !== undefined) {
+          return {
+            tanggal: formatDisplayDateTime(level.datetime),
+            tangki_135kva: `${level.reservoir}%`,
+            tangki_150kva: `${level.drum}%`,
+            tangki_radar: 'N/A',
+            status_135kva: getFuelStatusText(level.reservoir),
+            status_150kva: getFuelStatusText(level.drum),
+            status_radar: 'N/A',
             status_keseluruhan: getFuelStatusText(Math.min(level.reservoir, level.drum))
           };
-        } else {
-          // Old single level format
+        }
+        // Handle old single level format
+        else {
           return {
             tanggal: formatDisplayDateTime(level.datetime),
-            tangki_reservoir: level.level ? `${level.level}%` : 'N/A',
-            tangki_utama: 'N/A',
-            status_reservoir: level.level ? getFuelStatusText(level.level) : 'N/A',
-            status_utama: 'N/A',
+            tangki_135kva: level.level ? `${level.level}%` : 'N/A',
+            tangki_150kva: 'N/A',
+            tangki_radar: 'N/A',
+            status_135kva: level.level ? getFuelStatusText(level.level) : 'N/A',
+            status_150kva: 'N/A',
+            status_radar: 'N/A',
             status_keseluruhan: level.level ? getFuelStatusText(level.level) : 'N/A'
           };
         }
       });
-      downloadCSV(csvData, `riwayat_level_minyak_${timestamp}.csv`, 
-        ['Tanggal', 'Tangki Reservoir', 'Tangki Utama', 'Status Reservoir', 'Status Utama', 'Status Keseluruhan']);
+      downloadCSV(csvData, `riwayat_level_minyak_${filterSuffix}_${timestamp}.csv`, 
+        ['Tanggal', 'Tangki 135kVA', 'Tangki 150kVA', 'Tangki Radar', 'Status 135kVA', 'Status 150kVA', 'Status Radar', 'Status Keseluruhan']);
     } else if (activeTab === 'refill') {
       const csvData = refillHistory.map(refill => ({
         tanggal: refill.date,
         waktu: refill.time,
         jumlah_liter: refill.amount
       }));
-      downloadCSV(csvData, `riwayat_pengisian_minyak_${timestamp}.csv`, 
+      downloadCSV(csvData, `riwayat_pengisian_minyak_${filterSuffix}_${timestamp}.csv`, 
         ['Tanggal', 'Waktu', 'Jumlah Liter']);
     } else if (activeTab === 'battery') {
       const csvData = batteryHistory.map(battery => ({
@@ -144,7 +187,7 @@ export default function HistoryModal({ isOpen, onClose, onDetailClick }: History
         tipe_baterai: battery.battery_type,
         catatan: battery.notes
       }));
-      downloadCSV(csvData, `riwayat_penggantian_baterai_${timestamp}.csv`, 
+      downloadCSV(csvData, `riwayat_penggantian_baterai_${filterSuffix}_${timestamp}.csv`, 
         ['Tanggal', 'Waktu', 'Tipe Baterai', 'Catatan']);
     } else if (activeTab === 'maintenance') {
       const csvData = maintenanceHistory.map(maintenance => ({
@@ -152,7 +195,7 @@ export default function HistoryModal({ isOpen, onClose, onDetailClick }: History
         waktu: maintenance.time,
         catatan: maintenance.note
       }));
-      downloadCSV(csvData, `riwayat_maintenance_${timestamp}.csv`, 
+      downloadCSV(csvData, `riwayat_maintenance_${filterSuffix}_${timestamp}.csv`, 
         ['Tanggal', 'Waktu', 'Catatan']);
     }
   };
@@ -219,6 +262,15 @@ export default function HistoryModal({ isOpen, onClose, onDetailClick }: History
     }
   };
 
+  const getFilterButtonClass = (filterValue: number | null) => {
+    const isActive = dateFilter === filterValue;
+    return `px-3 py-1.5 rounded-lg transition-all text-xs font-medium ${
+      isActive 
+        ? 'bg-blue-500 text-white shadow-lg' 
+        : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+    }`;
+  };
+
   return (
     <div className="fixed inset-0 z-50 bg-black bg-opacity-50" onClick={handleBackdropClick}>
       <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white dark:bg-gray-800 rounded-xl shadow-2xl max-w-7xl w-full max-h-[90vh] mx-4 flex flex-col overflow-hidden">
@@ -250,7 +302,7 @@ export default function HistoryModal({ isOpen, onClose, onDetailClick }: History
         
         {/* History Type Selector */}
         <div className="p-6 border-b border-gray-200 dark:border-gray-700">
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-2 mb-4">
             <button 
               onClick={() => setActiveTab('power')}
               className={`px-4 py-2.5 rounded-lg transition-all text-sm font-medium ${
@@ -305,6 +357,38 @@ export default function HistoryModal({ isOpen, onClose, onDetailClick }: History
             >
               <i className="fas fa-tools mr-2"></i>
               Maintenance
+            </button>
+          </div>
+
+          {/* Date Filter */}
+          <div className="flex flex-wrap gap-2 items-center">
+            <span className="text-sm font-medium text-gray-700 dark:text-gray-300 mr-2">
+              <i className="fas fa-filter mr-1"></i>
+              Filter:
+            </span>
+            <button 
+              onClick={() => setDateFilter(1)}
+              className={getFilterButtonClass(1)}
+            >
+              1 Hari
+            </button>
+            <button 
+              onClick={() => setDateFilter(7)}
+              className={getFilterButtonClass(7)}
+            >
+              7 Hari
+            </button>
+            <button 
+              onClick={() => setDateFilter(30)}
+              className={getFilterButtonClass(30)}
+            >
+              30 Hari
+            </button>
+            <button 
+              onClick={() => setDateFilter(null)}
+              className={getFilterButtonClass(null)}
+            >
+              Semua Data
             </button>
           </div>
         </div>
@@ -368,7 +452,7 @@ export default function HistoryModal({ isOpen, onClose, onDetailClick }: History
             </div>
           )}
 
-          {/* Fuel Level History Table - Enhanced for Dual Tank */}
+          {/* Fuel Level History Table - Enhanced for Three Tanks */}
           {activeTab === 'fuel' && (
             <div className="overflow-x-auto">
               <div className="min-w-full">
@@ -378,21 +462,43 @@ export default function HistoryModal({ isOpen, onClose, onDetailClick }: History
                       <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap">Tanggal</th>
                       <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap">
                         <i className="fas fa-gas-pump mr-1"></i>
-                        Tangki Reservoir
+                        Tangki 135
                       </th>
                       <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap">
-                        <i className="fas fa-oil-can mr-1"></i>
-                        Tangki Utama
+                        <i className="fas fa-gas-pump mr-1"></i>
+                        Tangki 150
+                      </th>
+                      <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap">
+                        <i className="fas fa-gas-pump mr-1"></i>
+                        Tangki Radar
                       </th>
                       <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap">Status Keseluruhan</th>
                     </tr>
                   </thead>
                   <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                     {fuelHistory.map((level) => {
-                      // Handle both old and new format
-                      const reservoirLevel = level.reservoir !== undefined ? level.reservoir : (level.level || 0);
-                      const drumLevel = level.drum !== undefined ? level.drum : (level.level ? Math.max(0, level.level - 10) : 0);
-                      const overallStatus = Math.min(reservoirLevel, drumLevel);
+                      // Handle new three tank format
+                      let tangki135Level = 0, tangki150Level = 0, tangkiRadarLevel = 0;
+                      
+                      if (level.tangki_135kva !== undefined && level.tangki_150kva !== undefined && level.tangki_radar !== undefined) {
+                        tangki135Level = level.tangki_135kva;
+                        tangki150Level = level.tangki_150kva;
+                        tangkiRadarLevel = level.tangki_radar;
+                      }
+                      // Handle old dual tank format
+                      else if (level.reservoir !== undefined && level.drum !== undefined) {
+                        tangki135Level = level.reservoir;
+                        tangki150Level = level.drum;
+                        tangkiRadarLevel = Math.max(0, (level.reservoir + level.drum) / 2);
+                      }
+                      // Handle old single level format
+                      else if (level.level !== undefined) {
+                        tangki135Level = level.level;
+                        tangki150Level = Math.max(0, level.level - 10);
+                        tangkiRadarLevel = Math.max(0, level.level - 5);
+                      }
+                      
+                      const overallStatus = Math.min(tangki135Level, tangki150Level, tangkiRadarLevel);
                       
                       return (
                         <tr key={level.id} className="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
@@ -402,20 +508,30 @@ export default function HistoryModal({ isOpen, onClose, onDetailClick }: History
                           <td className="px-3 py-3 whitespace-nowrap">
                             <div className="flex flex-col space-y-1">
                               <span className="text-sm font-bold text-gray-900 dark:text-white">
-                                {reservoirLevel}%
+                                {tangki135Level}%
                               </span>
-                              <span className={getFuelStatusBadge(reservoirLevel)}>
-                                {getFuelStatusText(reservoirLevel)}
+                              <span className={getFuelStatusBadge(tangki135Level)}>
+                                {getFuelStatusText(tangki135Level)}
                               </span>
                             </div>
                           </td>
                           <td className="px-3 py-3 whitespace-nowrap">
                             <div className="flex flex-col space-y-1">
                               <span className="text-sm font-bold text-gray-900 dark:text-white">
-                                {drumLevel}%
+                                {tangki150Level}%
                               </span>
-                              <span className={getFuelStatusBadge(drumLevel)}>
-                                {getFuelStatusText(drumLevel)}
+                              <span className={getFuelStatusBadge(tangki150Level)}>
+                                {getFuelStatusText(tangki150Level)}
+                              </span>
+                            </div>
+                          </td>
+                          <td className="px-3 py-3 whitespace-nowrap">
+                            <div className="flex flex-col space-y-1">
+                              <span className="text-sm font-bold text-gray-900 dark:text-white">
+                                {tangkiRadarLevel}%
+                              </span>
+                              <span className={getFuelStatusBadge(tangkiRadarLevel)}>
+                                {getFuelStatusText(tangkiRadarLevel)}
                               </span>
                             </div>
                           </td>
@@ -548,6 +664,11 @@ export default function HistoryModal({ isOpen, onClose, onDetailClick }: History
           <div className="text-sm text-gray-500 dark:text-gray-400">
             <i className="fas fa-info-circle mr-1"></i>
             Total data: {getDataCount()} entri
+            {dateFilter && (
+              <span className="ml-2 text-blue-600 dark:text-blue-400">
+                (Filter: {dateFilter === 1 ? '1 hari' : dateFilter === 7 ? '7 hari' : '30 hari'})
+              </span>
+            )}
           </div>
           <button 
             onClick={onClose}
