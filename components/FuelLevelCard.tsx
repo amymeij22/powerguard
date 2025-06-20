@@ -136,7 +136,7 @@ export default function FuelLevelCard() {
       </div>
 
       {/* Status Indicator */}
-      <div className="text-center mt-2">
+      <div className="text-center mt-4">
         <div className={getFuelStatusBadge(level)}>
           <i className={`${getFuelStatusIcon(level)} mr-1 text-xs`}></i>
           <span className="text-xs">{getFuelStatusText(level)}</span>
