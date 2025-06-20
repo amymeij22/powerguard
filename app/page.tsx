@@ -53,7 +53,7 @@ export default function Home() {
       <header className="bg-white dark:bg-gray-800 shadow-md relative">
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
           <div className="flex items-center">
-            <i className="fas fa-bolt text-pln mr-2"></i>
+            <i className="fas fa-bolt text-pln mr-2 text-xl"></i>
             {/* Hide PowerGuard text on mobile */}
             <h1 className="text-2xl font-bold text-gray-800 dark:text-white hidden sm:block">PowerGuard</h1>
           </div>

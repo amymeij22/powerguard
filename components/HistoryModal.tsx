@@ -139,8 +139,7 @@ export default function HistoryModal({ isOpen, onClose, onDetailClick }: History
             tangki_radar: `${level.tangki_radar}%`,
             status_135kva: getFuelStatusText(level.tangki_135kva),
             status_150kva: getFuelStatusText(level.tangki_150kva),
-            status_radar: getFuelStatusText(level.tangki_radar),
-            status_keseluruhan: getFuelStatusText(Math.min(level.tangki_135kva, level.tangki_150kva, level.tangki_radar))
+            status_radar: getFuelStatusText(level.tangki_radar)
           };
         }
         // Handle old dual tank format
@@ -152,8 +151,7 @@ export default function HistoryModal({ isOpen, onClose, onDetailClick }: History
             tangki_radar: 'N/A',
             status_135kva: getFuelStatusText(level.reservoir),
             status_150kva: getFuelStatusText(level.drum),
-            status_radar: 'N/A',
-            status_keseluruhan: getFuelStatusText(Math.min(level.reservoir, level.drum))
+            status_radar: 'N/A'
           };
         }
         // Handle old single level format
@@ -165,38 +163,40 @@ export default function HistoryModal({ isOpen, onClose, onDetailClick }: History
             tangki_radar: 'N/A',
             status_135kva: level.level ? getFuelStatusText(level.level) : 'N/A',
             status_150kva: 'N/A',
-            status_radar: 'N/A',
-            status_keseluruhan: level.level ? getFuelStatusText(level.level) : 'N/A'
+            status_radar: 'N/A'
           };
         }
       });
       downloadCSV(csvData, `riwayat_level_minyak_${filterSuffix}_${timestamp}.csv`, 
-        ['Tanggal', 'Tangki 135kVA', 'Tangki 150kVA', 'Tangki Radar', 'Status 135kVA', 'Status 150kVA', 'Status Radar', 'Status Keseluruhan']);
+        ['Tanggal', 'Tangki 135kVA', 'Tangki 150kVA', 'Tangki Radar', 'Status 135kVA', 'Status 150kVA', 'Status Radar']);
     } else if (activeTab === 'refill') {
       const csvData = refillHistory.map(refill => ({
         tanggal: refill.date,
         waktu: refill.time,
-        jumlah_liter: refill.amount
+        jumlah_liter: refill.amount,
+        nama_petugas: refill.technician || 'N/A'
       }));
       downloadCSV(csvData, `riwayat_pengisian_minyak_${filterSuffix}_${timestamp}.csv`, 
-        ['Tanggal', 'Waktu', 'Jumlah Liter']);
+        ['Tanggal', 'Waktu', 'Jumlah Liter', 'Nama Petugas']);
     } else if (activeTab === 'battery') {
       const csvData = batteryHistory.map(battery => ({
         tanggal: battery.date,
         waktu: battery.time,
         tipe_baterai: battery.battery_type,
-        catatan: battery.notes
+        catatan: battery.notes,
+        nama_petugas: battery.technician || 'N/A'
       }));
       downloadCSV(csvData, `riwayat_penggantian_baterai_${filterSuffix}_${timestamp}.csv`, 
-        ['Tanggal', 'Waktu', 'Tipe Baterai', 'Catatan']);
+        ['Tanggal', 'Waktu', 'Tipe Baterai', 'Catatan', 'Nama Petugas']);
     } else if (activeTab === 'maintenance') {
       const csvData = maintenanceHistory.map(maintenance => ({
         tanggal: maintenance.date,
         waktu: maintenance.time,
-        catatan: maintenance.note
+        catatan: maintenance.note,
+        nama_petugas: maintenance.technician || 'N/A'
       }));
       downloadCSV(csvData, `riwayat_maintenance_${filterSuffix}_${timestamp}.csv`, 
-        ['Tanggal', 'Waktu', 'Catatan']);
+        ['Tanggal', 'Waktu', 'Catatan', 'Nama Petugas']);
     }
   };
 
@@ -472,7 +472,6 @@ export default function HistoryModal({ isOpen, onClose, onDetailClick }: History
                         <i className="fas fa-gas-pump mr-1"></i>
                         Tangki Radar
                       </th>
-                      <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap">Status Keseluruhan</th>
                     </tr>
                   </thead>
                   <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
@@ -497,8 +496,6 @@ export default function HistoryModal({ isOpen, onClose, onDetailClick }: History
                         tangki150Level = Math.max(0, level.level - 10);
                         tangkiRadarLevel = Math.max(0, level.level - 5);
                       }
-                      
-                      const overallStatus = Math.min(tangki135Level, tangki150Level, tangkiRadarLevel);
                       
                       return (
                         <tr key={level.id} className="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
@@ -535,16 +532,6 @@ export default function HistoryModal({ isOpen, onClose, onDetailClick }: History
                               </span>
                             </div>
                           </td>
-                          <td className="px-3 py-3 whitespace-nowrap">
-                            <div className="flex flex-col space-y-1">
-                              <span className="text-sm font-bold text-gray-900 dark:text-white">
-                                {overallStatus}%
-                              </span>
-                              <span className={getFuelStatusBadge(overallStatus)}>
-                                {getFuelStatusText(overallStatus)}
-                              </span>
-                            </div>
-                          </td>
                         </tr>
                       );
                     })}
@@ -564,6 +551,7 @@ export default function HistoryModal({ isOpen, onClose, onDetailClick }: History
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap">Tanggal</th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap">Waktu</th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap">Jumlah (Liter)</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap">Nama Petugas</th>
                     </tr>
                   </thead>
                   <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
@@ -577,6 +565,9 @@ export default function HistoryModal({ isOpen, onClose, onDetailClick }: History
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
                           {refill.amount} L
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                          {refill.technician || 'N/A'}
                         </td>
                       </tr>
                     ))}
@@ -597,6 +588,7 @@ export default function HistoryModal({ isOpen, onClose, onDetailClick }: History
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap">Waktu</th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap">Tipe Baterai</th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap">Catatan</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap">Nama Petugas</th>
                     </tr>
                   </thead>
                   <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
@@ -616,6 +608,9 @@ export default function HistoryModal({ isOpen, onClose, onDetailClick }: History
                         <td className="px-6 py-4 text-sm text-gray-900 dark:text-white max-w-xs truncate">
                           {battery.notes}
                         </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                          {battery.technician || 'N/A'}
+                        </td>
                       </tr>
                     ))}
                   </tbody>
@@ -634,6 +629,7 @@ export default function HistoryModal({ isOpen, onClose, onDetailClick }: History
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap">Tanggal</th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap">Waktu</th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap">Catatan Maintenance</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap">Nama Petugas</th>
                     </tr>
                   </thead>
                   <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
@@ -649,6 +645,9 @@ export default function HistoryModal({ isOpen, onClose, onDetailClick }: History
                           <div className="break-words">
                             {maintenance.note}
                           </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                          {maintenance.technician || 'N/A'}
                         </td>
                       </tr>
                     ))}

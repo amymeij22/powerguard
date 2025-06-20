@@ -15,18 +15,21 @@ export default function AddDataModal({ isOpen, onClose }: AddDataModalProps) {
   const [fuelFormData, setFuelFormData] = useState({
     date: '',
     time: '',
-    amount: ''
+    amount: '',
+    technician: ''
   });
   const [batteryFormData, setBatteryFormData] = useState({
     date: '',
     time: '',
     battery_type: '',
-    notes: ''
+    notes: '',
+    technician: ''
   });
   const [maintenanceFormData, setMaintenanceFormData] = useState({
     date: '',
     time: '',
-    note: ''
+    note: '',
+    technician: ''
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   
@@ -64,11 +67,12 @@ export default function AddDataModal({ isOpen, onClose }: AddDataModalProps) {
       await addFuelRefill({
         date: formattedDate,
         time: formattedTime,
-        amount: amount
+        amount: amount,
+        technician: fuelFormData.technician
       });
 
       // Reset form and close modal
-      setFuelFormData({ date: '', time: '', amount: '' });
+      setFuelFormData({ date: '', time: '', amount: '', technician: '' });
       showSuccess('Berhasil!', 'Data pengisian minyak berhasil ditambahkan!', true);
       setTimeout(() => handleClose(), 1500);
     } catch (error) {
@@ -95,11 +99,12 @@ export default function AddDataModal({ isOpen, onClose }: AddDataModalProps) {
         date: formattedDate,
         time: formattedTime,
         battery_type: batteryFormData.battery_type,
-        notes: batteryFormData.notes
+        notes: batteryFormData.notes,
+        technician: batteryFormData.technician
       });
 
       // Reset form
-      setBatteryFormData({ date: '', time: '', battery_type: '', notes: '' });
+      setBatteryFormData({ date: '', time: '', battery_type: '', notes: '', technician: '' });
       showSuccess('Berhasil!', 'Data penggantian baterai berhasil ditambahkan!', true);
       setTimeout(() => handleClose(), 1500);
     } catch (error) {
@@ -125,11 +130,12 @@ export default function AddDataModal({ isOpen, onClose }: AddDataModalProps) {
       await addMaintenance({
         date: formattedDate,
         time: formattedTime,
-        note: maintenanceFormData.note
+        note: maintenanceFormData.note,
+        technician: maintenanceFormData.technician
       });
 
       // Reset form
-      setMaintenanceFormData({ date: '', time: '', note: '' });
+      setMaintenanceFormData({ date: '', time: '', note: '', technician: '' });
       showSuccess('Berhasil!', 'Data maintenance berhasil ditambahkan!', true);
       setTimeout(() => handleClose(), 1500);
     } catch (error) {
@@ -157,9 +163,9 @@ export default function AddDataModal({ isOpen, onClose }: AddDataModalProps) {
 
   const handleClose = () => {
     if (!isSubmitting) {
-      setFuelFormData({ date: '', time: '', amount: '' });
-      setBatteryFormData({ date: '', time: '', battery_type: '', notes: '' });
-      setMaintenanceFormData({ date: '', time: '', note: '' });
+      setFuelFormData({ date: '', time: '', amount: '', technician: '' });
+      setBatteryFormData({ date: '', time: '', battery_type: '', notes: '', technician: '' });
+      setMaintenanceFormData({ date: '', time: '', note: '', technician: '' });
       onClose();
     }
   };
@@ -241,7 +247,7 @@ export default function AddDataModal({ isOpen, onClose }: AddDataModalProps) {
                 {/* Date Input */}
                 <div className="space-y-2">
                   <label htmlFor="date" className="block text-sm font-semibold text-gray-700 dark:text-gray-300">
-                    <i className="fas fa-calendar-alt mr-2 text-emerald-500"></i>
+                    <i className="fas fa-calendar-alt mr-2 text-emerald-500 dark:text-white"></i>
                     Tanggal Pengisian
                   </label>
                   <input 
@@ -259,7 +265,7 @@ export default function AddDataModal({ isOpen, onClose }: AddDataModalProps) {
                 {/* Time Input */}
                 <div className="space-y-2">
                   <label htmlFor="time" className="block text-sm font-semibold text-gray-700 dark:text-gray-300">
-                    <i className="fas fa-clock mr-2 text-emerald-500"></i>
+                    <i className="fas fa-clock mr-2 text-emerald-500 dark:text-white"></i>
                     Waktu Pengisian
                   </label>
                   <input 
@@ -303,6 +309,25 @@ export default function AddDataModal({ isOpen, onClose }: AddDataModalProps) {
                     Gunakan titik (.) atau koma (,) untuk desimal
                   </p>
                 </div>
+
+                {/* Technician Input */}
+                <div className="space-y-2">
+                  <label htmlFor="technician" className="block text-sm font-semibold text-gray-700 dark:text-gray-300">
+                    <i className="fas fa-user mr-2 text-emerald-500"></i>
+                    Nama Petugas
+                  </label>
+                  <input 
+                    type="text" 
+                    id="technician" 
+                    name="technician" 
+                    value={fuelFormData.technician}
+                    onChange={handleFuelInputChange}
+                    disabled={isSubmitting}
+                    placeholder="Masukkan nama petugas" 
+                    className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 dark:bg-gray-700 dark:text-white disabled:opacity-50 transition-all duration-200" 
+                    required 
+                  />
+                </div>
                 
                 {/* Footer for Fuel Form */}
                 <div className="flex justify-end space-x-3 pt-4">
@@ -333,7 +358,7 @@ export default function AddDataModal({ isOpen, onClose }: AddDataModalProps) {
                 {/* Date Input */}
                 <div className="space-y-2">
                   <label htmlFor="battery-date" className="block text-sm font-semibold text-gray-700 dark:text-gray-300">
-                    <i className="fas fa-calendar-alt mr-2 text-emerald-500"></i>
+                    <i className="fas fa-calendar-alt mr-2 text-emerald-500 dark:text-white"></i>
                     Tanggal Penggantian
                   </label>
                   <input 
@@ -351,7 +376,7 @@ export default function AddDataModal({ isOpen, onClose }: AddDataModalProps) {
                 {/* Time Input */}
                 <div className="space-y-2">
                   <label htmlFor="battery-time" className="block text-sm font-semibold text-gray-700 dark:text-gray-300">
-                    <i className="fas fa-clock mr-2 text-emerald-500"></i>
+                    <i className="fas fa-clock mr-2 text-emerald-500 dark:text-white"></i>
                     Waktu Penggantian
                   </label>
                   <input 
@@ -385,7 +410,6 @@ export default function AddDataModal({ isOpen, onClose }: AddDataModalProps) {
                   />
                 </div>
 
-                
                 {/* Notes Input */}
                 <div className="space-y-2">
                   <label htmlFor="battery-notes" className="block text-sm font-semibold text-gray-700 dark:text-gray-300">
@@ -400,6 +424,25 @@ export default function AddDataModal({ isOpen, onClose }: AddDataModalProps) {
                     disabled={isSubmitting}
                     placeholder="Tambahkan catatan penggantian baterai" 
                     className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 dark:bg-gray-700 dark:text-white disabled:opacity-50 transition-all duration-200 min-h-[100px]" 
+                    required 
+                  />
+                </div>
+
+                {/* Technician Input */}
+                <div className="space-y-2">
+                  <label htmlFor="battery-technician" className="block text-sm font-semibold text-gray-700 dark:text-gray-300">
+                    <i className="fas fa-user mr-2 text-emerald-500"></i>
+                    Nama Petugas
+                  </label>
+                  <input 
+                    type="text" 
+                    id="battery-technician" 
+                    name="technician" 
+                    value={batteryFormData.technician}
+                    onChange={handleBatteryInputChange}
+                    disabled={isSubmitting}
+                    placeholder="Masukkan nama petugas" 
+                    className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 dark:bg-gray-700 dark:text-white disabled:opacity-50 transition-all duration-200" 
                     required 
                   />
                 </div>
@@ -433,7 +476,7 @@ export default function AddDataModal({ isOpen, onClose }: AddDataModalProps) {
                 {/* Date Input */}
                 <div className="space-y-2">
                   <label htmlFor="maintenance-date" className="block text-sm font-semibold text-gray-700 dark:text-gray-300">
-                    <i className="fas fa-calendar-alt mr-2 text-emerald-500"></i>
+                    <i className="fas fa-calendar-alt mr-2 text-emerald-500 dark:text-white"></i>
                     Tanggal Maintenance
                   </label>
                   <input 
@@ -451,7 +494,7 @@ export default function AddDataModal({ isOpen, onClose }: AddDataModalProps) {
                 {/* Time Input */}
                 <div className="space-y-2">
                   <label htmlFor="maintenance-time" className="block text-sm font-semibold text-gray-700 dark:text-gray-300">
-                    <i className="fas fa-clock mr-2 text-emerald-500"></i>
+                    <i className="fas fa-clock mr-2 text-emerald-500 dark:text-white"></i>
                     Waktu Maintenance
                   </label>
                   <input 
@@ -480,6 +523,25 @@ export default function AddDataModal({ isOpen, onClose }: AddDataModalProps) {
                     disabled={isSubmitting}
                     placeholder="Masukkan detail maintenance yang dilakukan" 
                     className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 dark:bg-gray-700 dark:text-white disabled:opacity-50 transition-all duration-200 min-h-[150px]" 
+                    required 
+                  />
+                </div>
+
+                {/* Technician Input */}
+                <div className="space-y-2">
+                  <label htmlFor="maintenance-technician" className="block text-sm font-semibold text-gray-700 dark:text-gray-300">
+                    <i className="fas fa-user mr-2 text-emerald-500"></i>
+                    Nama Petugas
+                  </label>
+                  <input 
+                    type="text" 
+                    id="maintenance-technician" 
+                    name="technician" 
+                    value={maintenanceFormData.technician}
+                    onChange={handleMaintenanceInputChange}
+                    disabled={isSubmitting}
+                    placeholder="Masukkan nama petugas" 
+                    className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 dark:bg-gray-700 dark:text-white disabled:opacity-50 transition-all duration-200" 
                     required 
                   />
                 </div>

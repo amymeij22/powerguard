@@ -23,6 +23,7 @@ export interface FuelRefill {
   date: string;
   time: string;
   amount: number;
+  technician: string;
 }
 
 export interface BatteryReplacement {
@@ -30,12 +31,14 @@ export interface BatteryReplacement {
   time: string;
   battery_type: string;
   notes: string;
+  technician: string;
 }
 
 export interface Maintenance {
   date: string;
   time: string;
   note: string;
+  technician: string;
 }
 
 export interface SystemStatus {
@@ -297,56 +300,6 @@ export const updateSystemStatus = async (status: SystemStatus) => {
   }
 };
 
-// Utility function to check if system is online based on datetime
-export const isSystemOnline = (datetime: string): boolean => {
-  try {
-    // Parse datetime format dd/mm/yyyy hh:mm:ss
-    const [datePart, timePart] = datetime.split(' ');
-    if (!datePart || !timePart) {
-      console.error('Invalid datetime format:', datetime);
-      return false;
-    }
-    
-    const [day, month, year] = datePart.split('/');
-    const [hours, minutes, seconds] = timePart.split(':');
-    
-    if (!day || !month || !year || !hours || !minutes || !seconds) {
-      console.error('Invalid datetime components:', datetime);
-      return false;
-    }
-    
-    const statusDate = new Date(
-      parseInt(year),
-      parseInt(month) - 1, // Month is 0-indexed
-      parseInt(day),
-      parseInt(hours),
-      parseInt(minutes),
-      parseInt(seconds)
-    );
-    
-    if (isNaN(statusDate.getTime())) {
-      console.error('Invalid date created from:', datetime);
-      return false;
-    }
-    
-    const now = new Date();
-    const diffInSeconds = (now.getTime() - statusDate.getTime()) / 1000;
-    
-    console.log('System status check:', {
-      datetime,
-      statusDate: statusDate.toISOString(),
-      now: now.toISOString(),
-      diffInSeconds,
-      isOnline: diffInSeconds <= 30
-    });
-    
-    return diffInSeconds <= 30; // Online if within 30 seconds
-  } catch (error) {
-    console.error('Error parsing datetime:', error);
-    return false;
-  }
-};
-
 // Utility function to parse datetime string to Date object
 export const parseDatetime = (datetime: string): Date => {
   try {
@@ -399,6 +352,56 @@ export const filterDataByDateRange = <T extends { datetime?: string; date?: stri
     
     return itemDate >= cutoffDate;
   });
+};
+
+// Utility function to check if system is online based on datetime
+export const isSystemOnline = (datetime: string): boolean => {
+  try {
+    // Parse datetime format dd/mm/yyyy hh:mm:ss
+    const [datePart, timePart] = datetime.split(' ');
+    if (!datePart || !timePart) {
+      console.error('Invalid datetime format:', datetime);
+      return false;
+    }
+    
+    const [day, month, year] = datePart.split('/');
+    const [hours, minutes, seconds] = timePart.split(':');
+    
+    if (!day || !month || !year || !hours || !minutes || !seconds) {
+      console.error('Invalid datetime components:', datetime);
+      return false;
+    }
+    
+    const statusDate = new Date(
+      parseInt(year),
+      parseInt(month) - 1, // Month is 0-indexed
+      parseInt(day),
+      parseInt(hours),
+      parseInt(minutes),
+      parseInt(seconds)
+    );
+    
+    if (isNaN(statusDate.getTime())) {
+      console.error('Invalid date created from:', datetime);
+      return false;
+    }
+    
+    const now = new Date();
+    const diffInSeconds = (now.getTime() - statusDate.getTime()) / 1000;
+    
+    console.log('System status check:', {
+      datetime,
+      statusDate: statusDate.toISOString(),
+      now: now.toISOString(),
+      diffInSeconds,
+      isOnline: diffInSeconds <= 30
+    });
+    
+    return diffInSeconds <= 30; // Online if within 30 seconds
+  } catch (error) {
+    console.error('Error parsing datetime:', error);
+    return false;
+  }
 };
 
 // Utility function to format datetime
