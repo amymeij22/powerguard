@@ -36,6 +36,10 @@ export default function HistoryModal({ isOpen, onClose, onDetailClick }: History
   const [editingItem, setEditingItem] = useState<any>(null);
   const [showEditModal, setShowEditModal] = useState(false);
 
+  // Delete confirmation state
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<{ type: 'single' | 'bulk'; id?: string; ids?: string[] }>({ type: 'single' });
+
   const { alert, showSuccess, showError, hideAlert } = useAlert();
 
   useEffect(() => {
@@ -94,6 +98,13 @@ export default function HistoryModal({ isOpen, onClose, onDetailClick }: History
   const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
     if (e.target === e.currentTarget) {
       onClose();
+    }
+  };
+
+  // Handle click outside delete confirmation modal
+  const handleDeleteConfirmBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (e.target === e.currentTarget) {
+      setShowDeleteConfirm(false);
     }
   };
 
@@ -167,56 +178,61 @@ export default function HistoryModal({ isOpen, onClose, onDetailClick }: History
     }
   };
 
-  const handleDelete = async (id: string) => {
-    try {
-      switch (activeTab) {
-        case 'power':
-          await deletePowerStatus(id);
-          break;
-        case 'fuel':
-          await deleteFuelLevel(id);
-          break;
-        case 'refill':
-          await deleteFuelRefill(id);
-          break;
-        case 'battery':
-          await deleteBatteryReplacement(id);
-          break;
-        case 'maintenance':
-          await deleteMaintenance(id);
-          break;
-      }
-      showSuccess('Berhasil!', 'Data berhasil dihapus!');
-    } catch (error) {
-      showError('Gagal!', 'Gagal menghapus data. Silakan coba lagi.');
-    }
+  const handleDeleteClick = (id: string) => {
+    setDeleteTarget({ type: 'single', id });
+    setShowDeleteConfirm(true);
   };
 
-  const handleBulkDelete = async () => {
+  const handleBulkDeleteClick = () => {
     if (selectedItems.size === 0) return;
+    setDeleteTarget({ type: 'bulk', ids: Array.from(selectedItems) });
+    setShowDeleteConfirm(true);
+  };
 
+  const handleConfirmDelete = async () => {
     try {
-      const idsArray = Array.from(selectedItems);
-      switch (activeTab) {
-        case 'power':
-          await bulkDeletePowerStatus(idsArray);
-          break;
-        case 'fuel':
-          await bulkDeleteFuelLevel(idsArray);
-          break;
-        case 'refill':
-          await bulkDeleteFuelRefill(idsArray);
-          break;
-        case 'battery':
-          await bulkDeleteBatteryReplacement(idsArray);
-          break;
-        case 'maintenance':
-          await bulkDeleteMaintenance(idsArray);
-          break;
+      if (deleteTarget.type === 'single' && deleteTarget.id) {
+        switch (activeTab) {
+          case 'power':
+            await deletePowerStatus(deleteTarget.id);
+            break;
+          case 'fuel':
+            await deleteFuelLevel(deleteTarget.id);
+            break;
+          case 'refill':
+            await deleteFuelRefill(deleteTarget.id);
+            break;
+          case 'battery':
+            await deleteBatteryReplacement(deleteTarget.id);
+            break;
+          case 'maintenance':
+            await deleteMaintenance(deleteTarget.id);
+            break;
+        }
+        showSuccess('Berhasil!', 'Data berhasil dihapus!');
+      } else if (deleteTarget.type === 'bulk' && deleteTarget.ids) {
+        switch (activeTab) {
+          case 'power':
+            await bulkDeletePowerStatus(deleteTarget.ids);
+            break;
+          case 'fuel':
+            await bulkDeleteFuelLevel(deleteTarget.ids);
+            break;
+          case 'refill':
+            await bulkDeleteFuelRefill(deleteTarget.ids);
+            break;
+          case 'battery':
+            await bulkDeleteBatteryReplacement(deleteTarget.ids);
+            break;
+          case 'maintenance':
+            await bulkDeleteMaintenance(deleteTarget.ids);
+            break;
+        }
+        showSuccess('Berhasil!', `${deleteTarget.ids.length} data berhasil dihapus!`);
+        setSelectedItems(new Set());
+        setIsSelectMode(false);
       }
-      showSuccess('Berhasil!', `${selectedItems.size} data berhasil dihapus!`);
-      setSelectedItems(new Set());
-      setIsSelectMode(false);
+      setShowDeleteConfirm(false);
     } catch (error) {
       showError('Gagal!', 'Gagal menghapus data. Silakan coba lagi.');
     }
@@ -437,7 +453,7 @@ export default function HistoryModal({ isOpen, onClose, onDetailClick }: History
             <span className="hidden sm:inline">Edit</span>
           </button>
           <button 
-            onClick={() => handleDelete(item.id)}
+            onClick={() => handleDeleteClick(item.id)}
             className="px-2 sm:px-3 py-1 sm:py-1.5 bg-red-500 text-white text-xs rounded-lg hover:bg-red-600 transition-all flex items-center justify-center font-medium"
           >
             <i className="fas fa-trash mr-1"></i>
@@ -450,126 +466,126 @@ export default function HistoryModal({ isOpen, onClose, onDetailClick }: History
 
   return (
     <>
-      <div className="fixed inset-0 z-50 bg-black bg-opacity-50" onClick={handleBackdropClick}>
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white dark:bg-gray-800 rounded-xl shadow-2xl max-w-7xl w-full max-h-[90vh] mx-4 flex flex-col overflow-hidden">
+      <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center p-2 sm:p-4" onClick={handleBackdropClick}>
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-[95vw] sm:max-w-[90vw] lg:max-w-6xl xl:max-w-7xl max-h-[95vh] sm:max-h-[90vh] flex flex-col overflow-hidden">
           {/* Modal Header with gradient */}
-          <div className="bg-gradient-to-r from-emerald-500 to-emerald-600 p-4 sm:p-6 text-white">
+          <div className="bg-gradient-to-r from-emerald-500 to-emerald-600 p-3 sm:p-4 lg:p-6 text-white">
             <div className="flex justify-between items-center">
               <div>
-                <h3 className="text-lg sm:text-xl font-bold">Riwayat Status</h3>
-                <p className="text-emerald-100 text-sm mt-1">Data historis sistem monitoring</p>
+                <h3 className="text-base sm:text-lg lg:text-xl font-bold">Riwayat Status</h3>
+                <p className="text-emerald-100 text-xs sm:text-sm mt-1">Data historis sistem monitoring</p>
               </div>
-              <div className="flex space-x-2 sm:space-x-3">
+              <div className="flex space-x-1 sm:space-x-2 lg:space-x-3">
                 {isSelectMode && selectedItems.size > 0 && (
                   <button 
-                    onClick={handleBulkDelete}
-                    className="flex items-center px-3 sm:px-4 py-2 rounded-lg bg-red-500 hover:bg-red-600 transition-all text-white font-medium text-sm"
+                    onClick={handleBulkDeleteClick}
+                    className="flex items-center px-2 sm:px-3 lg:px-4 py-1.5 sm:py-2 rounded-lg bg-red-500 hover:bg-red-600 transition-all text-white font-medium text-xs sm:text-sm"
                     title="Hapus yang dipilih"
                   >
-                    <i className="fas fa-trash mr-2"></i>
+                    <i className="fas fa-trash mr-1 sm:mr-2"></i>
                     <span className="hidden sm:inline">Hapus ({selectedItems.size})</span>
                     <span className="sm:hidden">{selectedItems.size}</span>
                   </button>
                 )}
                 <button 
                   onClick={() => setIsSelectMode(!isSelectMode)}
-                  className={`flex items-center px-3 sm:px-4 py-2 rounded-lg transition-all font-medium text-sm ${
+                  className={`flex items-center px-2 sm:px-3 lg:px-4 py-1.5 sm:py-2 rounded-lg transition-all font-medium text-xs sm:text-sm ${
                     isSelectMode 
                       ? 'bg-gray-500 hover:bg-gray-600 text-white' 
                       : 'bg-white bg-opacity-20 hover:bg-opacity-30 text-white'
                   }`}
                   title={isSelectMode ? 'Keluar mode pilih' : 'Mode pilih'}
                 >
-                  <i className={`fas ${isSelectMode ? 'fa-times' : 'fa-check-square'} mr-2`}></i>
+                  <i className={`fas ${isSelectMode ? 'fa-times' : 'fa-check-square'} mr-1 sm:mr-2`}></i>
                   <span className="hidden sm:inline">{isSelectMode ? 'Batal' : 'Pilih'}</span>
                 </button>
                 <button 
                   onClick={handleDownloadData}
-                  className="flex items-center px-3 sm:px-4 py-2 rounded-lg bg-white bg-opacity-20 hover:bg-opacity-30 transition-all text-white font-medium text-sm"
+                  className="flex items-center px-2 sm:px-3 lg:px-4 py-1.5 sm:py-2 rounded-lg bg-white bg-opacity-20 hover:bg-opacity-30 transition-all text-white font-medium text-xs sm:text-sm"
                   title={`Unduh data ${getTabTitle()}`}
                 >
-                  <i className="fas fa-download mr-2"></i>
+                  <i className="fas fa-download mr-1 sm:mr-2"></i>
                   <span className="hidden sm:inline">Unduh CSV</span>
                 </button>
                 <button 
                   onClick={onClose}
-                  className="text-white hover:text-emerald-200 focus:outline-none transition-colors p-2 rounded-full hover:bg-white hover:bg-opacity-20"
+                  className="text-white hover:text-emerald-200 focus:outline-none transition-colors p-1.5 sm:p-2 rounded-full hover:bg-white hover:bg-opacity-20"
                 >
-                  <i className="fas fa-times text-lg"></i>
+                  <i className="fas fa-times text-sm sm:text-base lg:text-lg"></i>
                 </button>
               </div>
             </div>
           </div>
           
           {/* History Type Selector */}
-          <div className="p-4 sm:p-6 border-b border-gray-200 dark:border-gray-700">
-            <div className="flex flex-wrap gap-2 mb-4">
+          <div className="p-3 sm:p-4 lg:p-6 border-b border-gray-200 dark:border-gray-700">
+            <div className="flex flex-wrap gap-1 sm:gap-2 mb-3 sm:mb-4">
               <button 
                 onClick={() => setActiveTab('power')}
-                className={`px-3 sm:px-4 py-2.5 rounded-lg transition-all text-sm font-medium ${
+                className={`px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 rounded-lg transition-all text-xs sm:text-sm font-medium ${
                   activeTab === 'power' 
                     ? 'bg-emerald-500 text-white shadow-lg' 
                     : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
                 }`}
               >
-                <i className="fas fa-bolt mr-2"></i>
+                <i className="fas fa-bolt mr-1 sm:mr-2"></i>
                 <span className="hidden sm:inline">Status Sumber Listrik</span>
                 <span className="sm:hidden">Listrik</span>
               </button>
               <button 
                 onClick={() => setActiveTab('fuel')}
-                className={`px-3 sm:px-4 py-2.5 rounded-lg transition-all text-sm font-medium ${
+                className={`px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 rounded-lg transition-all text-xs sm:text-sm font-medium ${
                   activeTab === 'fuel' 
                     ? 'bg-emerald-500 text-white shadow-lg' 
                     : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
                 }`}
               >
-                <i className="fas fa-gas-pump mr-2"></i>
+                <i className="fas fa-gas-pump mr-1 sm:mr-2"></i>
                 <span className="hidden sm:inline">Level Minyak</span>
                 <span className="sm:hidden">Minyak</span>
               </button>
               <button 
                 onClick={() => setActiveTab('refill')}
-                className={`px-3 sm:px-4 py-2.5 rounded-lg transition-all text-sm font-medium ${
+                className={`px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 rounded-lg transition-all text-xs sm:text-sm font-medium ${
                   activeTab === 'refill' 
                     ? 'bg-emerald-500 text-white shadow-lg' 
                     : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
                 }`}
               >
-                <i className="fas fa-plus-circle mr-2"></i>
+                <i className="fas fa-plus-circle mr-1 sm:mr-2"></i>
                 <span className="hidden sm:inline">Pengisian Minyak</span>
                 <span className="sm:hidden">Pengisian</span>
               </button>
               <button 
                 onClick={() => setActiveTab('battery')}
-                className={`px-3 sm:px-4 py-2.5 rounded-lg transition-all text-sm font-medium ${
+                className={`px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 rounded-lg transition-all text-xs sm:text-sm font-medium ${
                   activeTab === 'battery' 
                     ? 'bg-emerald-500 text-white shadow-lg' 
                     : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
                 }`}
               >
-                <i className="fas fa-battery-full mr-2"></i>
+                <i className="fas fa-battery-full mr-1 sm:mr-2"></i>
                 <span className="hidden sm:inline">Penggantian Baterai</span>
                 <span className="sm:hidden">Baterai</span>
               </button>
               <button 
                 onClick={() => setActiveTab('maintenance')}
-                className={`px-3 sm:px-4 py-2.5 rounded-lg transition-all text-sm font-medium ${
+                className={`px-2 sm:px-3 lg:px-4 py-2 sm:py-2.5 rounded-lg transition-all text-xs sm:text-sm font-medium ${
                   activeTab === 'maintenance' 
                     ? 'bg-emerald-500 text-white shadow-lg' 
                     : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
                 }`}
               >
-                <i className="fas fa-tools mr-2"></i>
+                <i className="fas fa-tools mr-1 sm:mr-2"></i>
                 <span className="hidden sm:inline">Maintenance</span>
                 <span className="sm:hidden">Maintenance</span>
               </button>
             </div>
 
             {/* Date Filter and Bulk Actions */}
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-              <div className="flex flex-wrap gap-2 items-center">
-                <span className="text-sm font-medium text-gray-700 dark:text-gray-300 mr-2">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 sm:gap-3">
+              <div className="flex flex-wrap gap-1 sm:gap-2 items-center">
+                <span className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mr-1 sm:mr-2">
                   <i className="fas fa-filter mr-1"></i>
                   Filter:
                 </span>
@@ -603,7 +619,7 @@ export default function HistoryModal({ isOpen, onClose, onDetailClick }: History
                 <div className="flex items-center gap-2">
                   <button
                     onClick={handleSelectAll}
-                    className="px-3 py-1.5 text-xs bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-all"
+                    className="px-2 sm:px-3 py-1.5 text-xs bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-all"
                   >
                     {selectedItems.size === getCurrentData().length ? 'Batal Pilih Semua' : 'Pilih Semua'}
                   </button>
@@ -613,7 +629,7 @@ export default function HistoryModal({ isOpen, onClose, onDetailClick }: History
           </div>
           
           {/* Modal Content - Always maintain table structure */}
-          <div className="overflow-auto flex-grow p-4 sm:p-6">
+          <div className="overflow-auto flex-grow p-3 sm:p-4 lg:p-6">
             {/* Power Status History Table */}
             {activeTab === 'power' && (
               <div className="overflow-x-auto">
@@ -621,41 +637,41 @@ export default function HistoryModal({ isOpen, onClose, onDetailClick }: History
                   <table className="w-full divide-y divide-gray-200 dark:divide-gray-700">
                     <thead className="bg-gray-50 dark:bg-gray-900 sticky top-0">
                       <tr>
-                        <th className="px-2 sm:px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap">Tanggal</th>
-                        <th className="px-2 sm:px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap">PLN</th>
-                        <th className="px-2 sm:px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap">135kVA</th>
-                        <th className="px-2 sm:px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap">150kVA</th>
-                        <th className="px-2 sm:px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap">Radar</th>
-                        <th className="px-2 sm:px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap">Aksi</th>
+                        <th className="px-2 sm:px-3 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap">Tanggal</th>
+                        <th className="px-2 sm:px-3 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap">PLN</th>
+                        <th className="px-2 sm:px-3 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap">135kVA</th>
+                        <th className="px-2 sm:px-3 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap">150kVA</th>
+                        <th className="px-2 sm:px-3 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap">Radar</th>
+                        <th className="px-2 sm:px-3 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap">Aksi</th>
                       </tr>
                     </thead>
                     <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                       {powerHistory.map((status) => (
                         <tr key={status.id} className="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
-                          <td className="px-2 sm:px-3 py-3 whitespace-nowrap text-xs sm:text-sm text-gray-500 dark:text-gray-400">
+                          <td className="px-2 sm:px-3 py-2 sm:py-3 whitespace-nowrap text-xs sm:text-sm text-gray-500 dark:text-gray-400">
                             {formatDisplayDateTime(status.datetime)}
                           </td>
-                          <td className="px-2 sm:px-3 py-3 whitespace-nowrap">
+                          <td className="px-2 sm:px-3 py-2 sm:py-3 whitespace-nowrap">
                             <span className={getStatusBadge(status.pln, 'pln')}>
                               {status.pln === 1 ? 'Aktif' : 'Nonaktif'}
                             </span>
                           </td>
-                          <td className="px-2 sm:px-3 py-3 whitespace-nowrap">
+                          <td className="px-2 sm:px-3 py-2 sm:py-3 whitespace-nowrap">
                             <span className={getStatusBadge(status.genset_135, 'genset')}>
                               {status.genset_135 === 1 ? 'Aktif' : 'Nonaktif'}
                             </span>
                           </td>
-                          <td className="px-2 sm:px-3 py-3 whitespace-nowrap">
+                          <td className="px-2 sm:px-3 py-2 sm:py-3 whitespace-nowrap">
                             <span className={getStatusBadge(status.genset_150, 'genset')}>
                               {status.genset_150 === 1 ? 'Aktif' : 'Nonaktif'}
                             </span>
                           </td>
-                          <td className="px-2 sm:px-3 py-3 whitespace-nowrap">
+                          <td className="px-2 sm:px-3 py-2 sm:py-3 whitespace-nowrap">
                             <span className={getStatusBadge(status.genset_radar, 'genset')}>
                               {status.genset_radar === 1 ? 'Aktif' : 'Nonaktif'}
                             </span>
                           </td>
-                          <td className="px-2 sm:px-3 py-3 whitespace-nowrap">
+                          <td className="px-2 sm:px-3 py-2 sm:py-3 whitespace-nowrap">
                             {renderActionButtons(status)}
                           </td>
                         </tr>
@@ -673,20 +689,20 @@ export default function HistoryModal({ isOpen, onClose, onDetailClick }: History
                   <table className="w-full divide-y divide-gray-200 dark:divide-gray-700">
                     <thead className="bg-gray-50 dark:bg-gray-900 sticky top-0">
                       <tr>
-                        <th className="px-2 sm:px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap">Tanggal</th>
-                        <th className="px-2 sm:px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap">
+                        <th className="px-2 sm:px-3 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap">Tanggal</th>
+                        <th className="px-2 sm:px-3 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap">
                           <i className="fas fa-gas-pump mr-1"></i>
                           Tangki 135
                         </th>
-                        <th className="px-2 sm:px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap">
+                        <th className="px-2 sm:px-3 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap">
                           <i className="fas fa-gas-pump mr-1"></i>
                           Tangki 150
                         </th>
-                        <th className="px-2 sm:px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap">
+                        <th className="px-2 sm:px-3 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap">
                           <i className="fas fa-gas-pump mr-1"></i>
                           Tangki Radar
                         </th>
-                        <th className="px-2 sm:px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap">Aksi</th>
+                        <th className="px-2 sm:px-3 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap">Aksi</th>
                       </tr>
                     </thead>
                     <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
@@ -714,12 +730,12 @@ export default function HistoryModal({ isOpen, onClose, onDetailClick }: History
                         
                         return (
                           <tr key={level.id} className="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
-                            <td className="px-2 sm:px-3 py-3 whitespace-nowrap text-xs sm:text-sm text-gray-500 dark:text-gray-400">
+                            <td className="px-2 sm:px-3 py-2 sm:py-3 whitespace-nowrap text-xs sm:text-sm text-gray-500 dark:text-gray-400">
                               {formatDisplayDateTime(level.datetime)}
                             </td>
-                            <td className="px-2 sm:px-3 py-3 whitespace-nowrap">
+                            <td className="px-2 sm:px-3 py-2 sm:py-3 whitespace-nowrap">
                               <div className="flex flex-col space-y-1">
-                                <span className="text-sm font-bold text-gray-900 dark:text-white">
+                                <span className="text-xs sm:text-sm font-bold text-gray-900 dark:text-white">
                                   {tangki135Level}%
                                 </span>
                                 <span className={getFuelStatusBadge(tangki135Level)}>
@@ -727,9 +743,9 @@ export default function HistoryModal({ isOpen, onClose, onDetailClick }: History
                                 </span>
                               </div>
                             </td>
-                            <td className="px-2 sm:px-3 py-3 whitespace-nowrap">
+                            <td className="px-2 sm:px-3 py-2 sm:py-3 whitespace-nowrap">
                               <div className="flex flex-col space-y-1">
-                                <span className="text-sm font-bold text-gray-900 dark:text-white">
+                                <span className="text-xs sm:text-sm font-bold text-gray-900 dark:text-white">
                                   {tangki150Level}%
                                 </span>
                                 <span className={getFuelStatusBadge(tangki150Level)}>
@@ -737,9 +753,9 @@ export default function HistoryModal({ isOpen, onClose, onDetailClick }: History
                                 </span>
                               </div>
                             </td>
-                            <td className="px-2 sm:px-3 py-3 whitespace-nowrap">
+                            <td className="px-2 sm:px-3 py-2 sm:py-3 whitespace-nowrap">
                               <div className="flex flex-col space-y-1">
-                                <span className="text-sm font-bold text-gray-900 dark:text-white">
+                                <span className="text-xs sm:text-sm font-bold text-gray-900 dark:text-white">
                                   {tangkiRadarLevel}%
                                 </span>
                                 <span className={getFuelStatusBadge(tangkiRadarLevel)}>
@@ -747,7 +763,7 @@ export default function HistoryModal({ isOpen, onClose, onDetailClick }: History
                                 </span>
                               </div>
                             </td>
-                            <td className="px-2 sm:px-3 py-3 whitespace-nowrap">
+                            <td className="px-2 sm:px-3 py-2 sm:py-3 whitespace-nowrap">
                               {renderActionButtons(level)}
                             </td>
                           </tr>
@@ -766,29 +782,29 @@ export default function HistoryModal({ isOpen, onClose, onDetailClick }: History
                   <table className="w-full divide-y divide-gray-200 dark:divide-gray-700">
                     <thead className="bg-gray-50 dark:bg-gray-900 sticky top-0">
                       <tr>
-                        <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap">Tanggal</th>
-                        <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap">Waktu</th>
-                        <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap">Jumlah (L)</th>
-                        <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap">Petugas</th>
-                        <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap">Aksi</th>
+                        <th className="px-2 sm:px-3 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap">Tanggal</th>
+                        <th className="px-2 sm:px-3 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap">Waktu</th>
+                        <th className="px-2 sm:px-3 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap">Jumlah (L)</th>
+                        <th className="px-2 sm:px-3 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap">Petugas</th>
+                        <th className="px-2 sm:px-3 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap">Aksi</th>
                       </tr>
                     </thead>
                     <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                       {refillHistory.map((refill) => (
                         <tr key={refill.id} className="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
-                          <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-xs sm:text-sm text-gray-500 dark:text-gray-400">
+                          <td className="px-2 sm:px-3 py-2 sm:py-4 whitespace-nowrap text-xs sm:text-sm text-gray-500 dark:text-gray-400">
                             {refill.date}
                           </td>
-                          <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-xs sm:text-sm text-gray-500 dark:text-gray-400">
+                          <td className="px-2 sm:px-3 py-2 sm:py-4 whitespace-nowrap text-xs sm:text-sm text-gray-500 dark:text-gray-400">
                             {refill.time}
                           </td>
-                          <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-xs sm:text-sm font-medium text-gray-900 dark:text-white">
+                          <td className="px-2 sm:px-3 py-2 sm:py-4 whitespace-nowrap text-xs sm:text-sm font-medium text-gray-900 dark:text-white">
                             {refill.amount} L
                           </td>
-                          <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-xs sm:text-sm text-gray-900 dark:text-white">
+                          <td className="px-2 sm:px-3 py-2 sm:py-4 whitespace-nowrap text-xs sm:text-sm text-gray-900 dark:text-white">
                             {refill.technician || 'N/A'}
                           </td>
-                          <td className="px-3 sm:px-6 py-4 whitespace-nowrap">
+                          <td className="px-2 sm:px-3 py-2 sm:py-4 whitespace-nowrap">
                             {renderActionButtons(refill)}
                           </td>
                         </tr>
@@ -806,35 +822,35 @@ export default function HistoryModal({ isOpen, onClose, onDetailClick }: History
                   <table className="w-full divide-y divide-gray-200 dark:divide-gray-700">
                     <thead className="bg-gray-50 dark:bg-gray-900 sticky top-0">
                       <tr>
-                        <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap">Tanggal</th>
-                        <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap">Waktu</th>
-                        <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap">Tipe Baterai</th>
-                        <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap">Catatan</th>
-                        <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap">Petugas</th>
-                        <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap">Aksi</th>
+                        <th className="px-2 sm:px-3 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap">Tanggal</th>
+                        <th className="px-2 sm:px-3 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap">Waktu</th>
+                        <th className="px-2 sm:px-3 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap">Tipe Baterai</th>
+                        <th className="px-2 sm:px-3 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap">Catatan</th>
+                        <th className="px-2 sm:px-3 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap">Petugas</th>
+                        <th className="px-2 sm:px-3 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap">Aksi</th>
                       </tr>
                     </thead>
                     <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                       {batteryHistory.map((battery) => (
                         <tr key={battery.id} className="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
-                          <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-xs sm:text-sm text-gray-500 dark:text-gray-400">
+                          <td className="px-2 sm:px-3 py-2 sm:py-4 whitespace-nowrap text-xs sm:text-sm text-gray-500 dark:text-gray-400">
                             {battery.date}
                           </td>
-                          <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-xs sm:text-sm text-gray-500 dark:text-gray-400">
+                          <td className="px-2 sm:px-3 py-2 sm:py-4 whitespace-nowrap text-xs sm:text-sm text-gray-500 dark:text-gray-400">
                             {battery.time}
                           </td>
-                          <td className="px-3 sm:px-6 py-4 whitespace-nowrap">
+                          <td className="px-2 sm:px-3 py-2 sm:py-4 whitespace-nowrap">
                             <span className="px-2 py-1 inline-flex text-xs leading-4 font-semibold rounded-full bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300">
                               {battery.battery_type}
                             </span>
                           </td>
-                          <td className="px-3 sm:px-6 py-4 text-xs sm:text-sm text-gray-900 dark:text-white max-w-xs truncate">
+                          <td className="px-2 sm:px-3 py-2 sm:py-4 text-xs sm:text-sm text-gray-900 dark:text-white max-w-xs truncate">
                             {battery.notes}
                           </td>
-                          <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-xs sm:text-sm text-gray-900 dark:text-white">
+                          <td className="px-2 sm:px-3 py-2 sm:py-4 whitespace-nowrap text-xs sm:text-sm text-gray-900 dark:text-white">
                             {battery.technician || 'N/A'}
                           </td>
-                          <td className="px-3 sm:px-6 py-4 whitespace-nowrap">
+                          <td className="px-2 sm:px-3 py-2 sm:py-4 whitespace-nowrap">
                             {renderActionButtons(battery)}
                           </td>
                         </tr>
@@ -852,31 +868,31 @@ export default function HistoryModal({ isOpen, onClose, onDetailClick }: History
                   <table className="w-full divide-y divide-gray-200 dark:divide-gray-700">
                     <thead className="bg-gray-50 dark:bg-gray-900 sticky top-0">
                       <tr>
-                        <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap">Tanggal</th>
-                        <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap">Waktu</th>
-                        <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap">Catatan Maintenance</th>
-                        <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap">Petugas</th>
-                        <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap">Aksi</th>
+                        <th className="px-2 sm:px-3 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap">Tanggal</th>
+                        <th className="px-2 sm:px-3 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap">Waktu</th>
+                        <th className="px-2 sm:px-3 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap">Catatan Maintenance</th>
+                        <th className="px-2 sm:px-3 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap">Petugas</th>
+                        <th className="px-2 sm:px-3 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider whitespace-nowrap">Aksi</th>
                       </tr>
                     </thead>
                     <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                       {maintenanceHistory.map((maintenance) => (
                         <tr key={maintenance.id} className="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
-                          <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-xs sm:text-sm text-gray-500 dark:text-gray-400">
+                          <td className="px-2 sm:px-3 py-2 sm:py-4 whitespace-nowrap text-xs sm:text-sm text-gray-500 dark:text-gray-400">
                             {maintenance.date}
                           </td>
-                          <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-xs sm:text-sm text-gray-500 dark:text-gray-400">
+                          <td className="px-2 sm:px-3 py-2 sm:py-4 whitespace-nowrap text-xs sm:text-sm text-gray-500 dark:text-gray-400">
                             {maintenance.time}
                           </td>
-                          <td className="px-3 sm:px-6 py-4 text-xs sm:text-sm text-gray-900 dark:text-white max-w-md">
+                          <td className="px-2 sm:px-3 py-2 sm:py-4 text-xs sm:text-sm text-gray-900 dark:text-white max-w-md">
                             <div className="break-words">
                               {maintenance.note}
                             </div>
                           </td>
-                          <td className="px-3 sm:px-6 py-4 whitespace-nowrap text-xs sm:text-sm text-gray-900 dark:text-white">
+                          <td className="px-2 sm:px-3 py-2 sm:py-4 whitespace-nowrap text-xs sm:text-sm text-gray-900 dark:text-white">
                             {maintenance.technician || 'N/A'}
                           </td>
-                          <td className="px-3 sm:px-6 py-4 whitespace-nowrap">
+                          <td className="px-2 sm:px-3 py-2 sm:py-4 whitespace-nowrap">
                             {renderActionButtons(maintenance)}
                           </td>
                         </tr>
@@ -889,8 +905,8 @@ export default function HistoryModal({ isOpen, onClose, onDetailClick }: History
           </div>
           
           {/* Modal Footer */}
-          <div className="bg-gray-50 dark:bg-gray-700 px-4 sm:px-6 py-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-            <div className="text-sm text-gray-500 dark:text-gray-400">
+          <div className="bg-gray-50 dark:bg-gray-700 px-3 sm:px-4 lg:px-6 py-3 sm:py-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 sm:gap-3">
+            <div className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">
               <i className="fas fa-info-circle mr-1"></i>
               Total data: {getDataCount()} entri
               {dateFilter && (
@@ -906,13 +922,61 @@ export default function HistoryModal({ isOpen, onClose, onDetailClick }: History
             </div>
             <button 
               onClick={onClose}
-              className="px-4 sm:px-6 py-2.5 bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-500 transition-all font-medium"
+              className="px-3 sm:px-4 lg:px-6 py-2 sm:py-2.5 bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-500 transition-all font-medium text-xs sm:text-sm"
             >
               Tutup
             </button>
           </div>
         </div>
       </div>
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 z-[70] bg-black bg-opacity-50 flex items-center justify-center p-4" onClick={handleDeleteConfirmBackdropClick}>
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-md mx-4 overflow-hidden">
+            {/* Confirmation Header */}
+            <div className="bg-gradient-to-r from-red-500 to-red-600 p-4 sm:p-6 text-white">
+              <div className="flex items-center">
+                <i className="fas fa-exclamation-triangle text-2xl mr-3"></i>
+                <div>
+                  <h3 className="text-lg font-bold">Konfirmasi Penghapusan</h3>
+                  <p className="text-red-100 text-sm mt-1">Tindakan ini tidak dapat dibatalkan</p>
+                </div>
+              </div>
+            </div>
+            
+            {/* Confirmation Content */}
+            <div className="p-4 sm:p-6">
+              <p className="text-gray-700 dark:text-gray-300 mb-4">
+                {deleteTarget.type === 'single' 
+                  ? 'Apakah Anda yakin ingin menghapus data ini?' 
+                  : `Apakah Anda yakin ingin menghapus ${deleteTarget.ids?.length} data yang dipilih?`
+                }
+              </p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                Data yang dihapus tidak dapat dikembalikan.
+              </p>
+            </div>
+            
+            {/* Confirmation Actions */}
+            <div className="bg-gray-50 dark:bg-gray-700 px-4 sm:px-6 py-3 sm:py-4 flex justify-end space-x-3">
+              <button 
+                onClick={() => setShowDeleteConfirm(false)}
+                className="px-4 py-2 bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-500 transition-all font-medium text-sm"
+              >
+                Batal
+              </button>
+              <button 
+                onClick={handleConfirmDelete}
+                className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-all font-medium text-sm flex items-center"
+              >
+                <i className="fas fa-trash mr-2"></i>
+                Hapus
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Edit Modal */}
       <EditModal

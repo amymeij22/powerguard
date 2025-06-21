@@ -181,13 +181,13 @@ export default function AddDataModal({ isOpen, onClose }: AddDataModalProps) {
 
   return (
     <>
-      <div className="fixed inset-0 z-50 bg-black bg-opacity-50" onClick={handleBackdropClick}>
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white dark:bg-gray-800 rounded-xl shadow-2xl max-w-7xl w-full max-h-[90vh] mx-4 flex flex-col overflow-hidden">
+      <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center p-2 sm:p-4" onClick={handleBackdropClick}>
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-[95vw] sm:max-w-[90vw] lg:max-w-4xl xl:max-w-5xl max-h-[95vh] sm:max-h-[90vh] flex flex-col overflow-hidden">
           {/* Modal Header with gradient */}
-          <div className="bg-gradient-to-r from-emerald-500 to-emerald-600 p-6 text-white">
+          <div className="bg-gradient-to-r from-emerald-500 to-emerald-600 p-4 sm:p-6 text-white">
             <div className="flex justify-between items-center">
               <div>
-                <h3 className="text-xl font-bold">Tambah Data</h3>
+                <h3 className="text-lg sm:text-xl font-bold">Tambah Data</h3>
                 <p className="text-emerald-100 text-sm mt-1">Data baru untuk sistem monitoring</p>
               </div>
               <button 
@@ -201,49 +201,52 @@ export default function AddDataModal({ isOpen, onClose }: AddDataModalProps) {
           </div>
           
           {/* Tab Selector */}
-          <div className="p-6 border-b border-gray-200 dark:border-gray-700">
+          <div className="p-4 sm:p-6 border-b border-gray-200 dark:border-gray-700">
             <div className="flex flex-wrap gap-2">
               <button 
                 onClick={() => setActiveTab('fuel')}
-                className={`px-4 py-2.5 rounded-lg transition-all text-sm font-medium ${
+                className={`px-3 sm:px-4 py-2.5 rounded-lg transition-all text-sm font-medium ${
                   activeTab === 'fuel' 
                     ? 'bg-emerald-500 text-white shadow-lg' 
                     : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
                 }`}
               >
                 <i className="fas fa-gas-pump mr-2"></i>
-                Data Pengisian
+                <span className="hidden sm:inline">Data Pengisian</span>
+                <span className="sm:hidden">Pengisian</span>
               </button>
               <button 
                 onClick={() => setActiveTab('battery')}
-                className={`px-4 py-2.5 rounded-lg transition-all text-sm font-medium ${
+                className={`px-3 sm:px-4 py-2.5 rounded-lg transition-all text-sm font-medium ${
                   activeTab === 'battery' 
                     ? 'bg-emerald-500 text-white shadow-lg' 
                     : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
                 }`}
               >
                 <i className="fas fa-battery-full mr-2"></i>
-                Penggantian Baterai
+                <span className="hidden sm:inline">Penggantian Baterai</span>
+                <span className="sm:hidden">Baterai</span>
               </button>
               <button 
                 onClick={() => setActiveTab('maintenance')}
-                className={`px-4 py-2.5 rounded-lg transition-all text-sm font-medium ${
+                className={`px-3 sm:px-4 py-2.5 rounded-lg transition-all text-sm font-medium ${
                   activeTab === 'maintenance' 
                     ? 'bg-emerald-500 text-white shadow-lg' 
                     : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
                 }`}
               >
                 <i className="fas fa-tools mr-2"></i>
-                Maintenance
+                <span className="hidden sm:inline">Maintenance</span>
+                <span className="sm:hidden">Maintenance</span>
               </button>
             </div>
           </div>
           
           {/* Modal Content */}
-          <div className="overflow-auto flex-grow p-6">
+          <div className="overflow-auto flex-grow p-4 sm:p-6">
             {/* Fuel Refill Form */}
             {activeTab === 'fuel' && (
-              <form onSubmit={handleFuelSubmit} className="space-y-6">
+              <form onSubmit={handleFuelSubmit} className="space-y-4 sm:space-y-6">
                 {/* Date Input */}
                 <div className="space-y-2">
                   <label htmlFor="date" className="block text-sm font-semibold text-gray-700 dark:text-gray-300">
@@ -257,7 +260,7 @@ export default function AddDataModal({ isOpen, onClose }: AddDataModalProps) {
                     value={fuelFormData.date}
                     onChange={handleFuelInputChange}
                     disabled={isSubmitting}
-                    className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 dark:bg-gray-700 dark:text-white disabled:opacity-50 transition-all duration-200" 
+                    className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 dark:bg-gray-700 dark:text-white disabled:opacity-50 transition-all duration-200 text-sm sm:text-base" 
                     required 
                   />
                 </div>
@@ -275,7 +278,7 @@ export default function AddDataModal({ isOpen, onClose }: AddDataModalProps) {
                     value={fuelFormData.time}
                     onChange={handleFuelInputChange}
                     disabled={isSubmitting}
-                    className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 dark:bg-gray-700 dark:text-white disabled:opacity-50 transition-all duration-200" 
+                    className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 dark:bg-gray-700 dark:text-white disabled:opacity-50 transition-all duration-200 text-sm sm:text-base" 
                     required 
                   />
                 </div>
@@ -297,7 +300,7 @@ export default function AddDataModal({ isOpen, onClose }: AddDataModalProps) {
                       disabled={isSubmitting}
                       pattern="[0-9]+([.,][0-9]+)?" 
                       placeholder="Contoh: 25.5 atau 25,5" 
-                      className="w-full px-4 py-3 pr-12 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 dark:bg-gray-700 dark:text-white disabled:opacity-50 transition-all duration-200" 
+                      className="w-full px-3 sm:px-4 py-2 sm:py-3 pr-12 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 dark:bg-gray-700 dark:text-white disabled:opacity-50 transition-all duration-200 text-sm sm:text-base" 
                       required 
                     />
                     <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
@@ -324,25 +327,25 @@ export default function AddDataModal({ isOpen, onClose }: AddDataModalProps) {
                     onChange={handleFuelInputChange}
                     disabled={isSubmitting}
                     placeholder="Masukkan nama petugas" 
-                    className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 dark:bg-gray-700 dark:text-white disabled:opacity-50 transition-all duration-200" 
+                    className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 dark:bg-gray-700 dark:text-white disabled:opacity-50 transition-all duration-200 text-sm sm:text-base" 
                     required 
                   />
                 </div>
                 
                 {/* Footer for Fuel Form */}
-                <div className="flex justify-end space-x-3 pt-4">
+                <div className="flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-3 pt-4">
                   <button 
                     type="button"
                     onClick={handleClose}
                     disabled={isSubmitting}
-                    className="px-6 py-2.5 bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-500 transition-all duration-200 font-medium disabled:opacity-50"
+                    className="w-full sm:w-auto px-4 sm:px-6 py-2.5 bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-500 transition-all duration-200 font-medium disabled:opacity-50 text-sm sm:text-base"
                   >
                     Batal
                   </button>
                   <button 
                     type="submit"
                     disabled={isSubmitting}
-                    className="px-6 py-2.5 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white rounded-lg hover:from-emerald-600 hover:to-emerald-700 transition-all duration-200 font-medium disabled:opacity-50 flex items-center shadow-lg"
+                    className="w-full sm:w-auto px-4 sm:px-6 py-2.5 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white rounded-lg hover:from-emerald-600 hover:to-emerald-700 transition-all duration-200 font-medium disabled:opacity-50 flex items-center justify-center shadow-lg text-sm sm:text-base"
                   >
                     {isSubmitting && <i className="fas fa-spinner fa-spin mr-2"></i>}
                     <i className={`fas ${isSubmitting ? 'fa-spinner fa-spin' : 'fa-save'} mr-2`}></i>
@@ -354,7 +357,7 @@ export default function AddDataModal({ isOpen, onClose }: AddDataModalProps) {
             
             {/* Battery Replacement Form */}
             {activeTab === 'battery' && (
-              <form onSubmit={handleBatterySubmit} className="space-y-6">
+              <form onSubmit={handleBatterySubmit} className="space-y-4 sm:space-y-6">
                 {/* Date Input */}
                 <div className="space-y-2">
                   <label htmlFor="battery-date" className="block text-sm font-semibold text-gray-700 dark:text-gray-300">
@@ -368,7 +371,7 @@ export default function AddDataModal({ isOpen, onClose }: AddDataModalProps) {
                     value={batteryFormData.date}
                     onChange={handleBatteryInputChange}
                     disabled={isSubmitting}
-                    className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 dark:bg-gray-700 dark:text-white disabled:opacity-50 transition-all duration-200" 
+                    className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 dark:bg-gray-700 dark:text-white disabled:opacity-50 transition-all duration-200 text-sm sm:text-base" 
                     required 
                   />
                 </div>
@@ -386,7 +389,7 @@ export default function AddDataModal({ isOpen, onClose }: AddDataModalProps) {
                     value={batteryFormData.time}
                     onChange={handleBatteryInputChange}
                     disabled={isSubmitting}
-                    className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 dark:bg-gray-700 dark:text-white disabled:opacity-50 transition-all duration-200" 
+                    className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 dark:bg-gray-700 dark:text-white disabled:opacity-50 transition-all duration-200 text-sm sm:text-base" 
                     required 
                   />
                 </div>
@@ -404,7 +407,7 @@ export default function AddDataModal({ isOpen, onClose }: AddDataModalProps) {
                     value={batteryFormData.battery_type}
                     onChange={handleBatteryInputChange}
                     disabled={isSubmitting}
-                    className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 dark:bg-gray-700 dark:text-white disabled:opacity-50 transition-all duration-200"
+                    className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 dark:bg-gray-700 dark:text-white disabled:opacity-50 transition-all duration-200 text-sm sm:text-base"
                     placeholder="Masukkan tipe baterai"
                     required
                   />
@@ -423,7 +426,7 @@ export default function AddDataModal({ isOpen, onClose }: AddDataModalProps) {
                     onChange={handleBatteryInputChange}
                     disabled={isSubmitting}
                     placeholder="Tambahkan catatan penggantian baterai" 
-                    className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 dark:bg-gray-700 dark:text-white disabled:opacity-50 transition-all duration-200 min-h-[100px]" 
+                    className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 dark:bg-gray-700 dark:text-white disabled:opacity-50 transition-all duration-200 min-h-[80px] sm:min-h-[100px] text-sm sm:text-base" 
                     required 
                   />
                 </div>
@@ -442,25 +445,25 @@ export default function AddDataModal({ isOpen, onClose }: AddDataModalProps) {
                     onChange={handleBatteryInputChange}
                     disabled={isSubmitting}
                     placeholder="Masukkan nama petugas" 
-                    className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 dark:bg-gray-700 dark:text-white disabled:opacity-50 transition-all duration-200" 
+                    className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 dark:bg-gray-700 dark:text-white disabled:opacity-50 transition-all duration-200 text-sm sm:text-base" 
                     required 
                   />
                 </div>
                 
                 {/* Footer for Battery Form */}
-                <div className="flex justify-end space-x-3 pt-4">
+                <div className="flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-3 pt-4">
                   <button 
                     type="button"
                     onClick={handleClose}
                     disabled={isSubmitting}
-                    className="px-6 py-2.5 bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-500 transition-all duration-200 font-medium disabled:opacity-50"
+                    className="w-full sm:w-auto px-4 sm:px-6 py-2.5 bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-500 transition-all duration-200 font-medium disabled:opacity-50 text-sm sm:text-base"
                   >
                     Batal
                   </button>
                   <button 
                     type="submit"
                     disabled={isSubmitting}
-                    className="px-6 py-2.5 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white rounded-lg hover:from-emerald-600 hover:to-emerald-700 transition-all duration-200 font-medium disabled:opacity-50 flex items-center shadow-lg"
+                    className="w-full sm:w-auto px-4 sm:px-6 py-2.5 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white rounded-lg hover:from-emerald-600 hover:to-emerald-700 transition-all duration-200 font-medium disabled:opacity-50 flex items-center justify-center shadow-lg text-sm sm:text-base"
                   >
                     {isSubmitting && <i className="fas fa-spinner fa-spin mr-2"></i>}
                     <i className={`fas ${isSubmitting ? 'fa-spinner fa-spin' : 'fa-save'} mr-2`}></i>
@@ -472,7 +475,7 @@ export default function AddDataModal({ isOpen, onClose }: AddDataModalProps) {
             
             {/* Maintenance Form */}
             {activeTab === 'maintenance' && (
-              <form onSubmit={handleMaintenanceSubmit} className="space-y-6">
+              <form onSubmit={handleMaintenanceSubmit} className="space-y-4 sm:space-y-6">
                 {/* Date Input */}
                 <div className="space-y-2">
                   <label htmlFor="maintenance-date" className="block text-sm font-semibold text-gray-700 dark:text-gray-300">
@@ -486,7 +489,7 @@ export default function AddDataModal({ isOpen, onClose }: AddDataModalProps) {
                     value={maintenanceFormData.date}
                     onChange={handleMaintenanceInputChange}
                     disabled={isSubmitting}
-                    className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 dark:bg-gray-700 dark:text-white disabled:opacity-50 transition-all duration-200" 
+                    className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 dark:bg-gray-700 dark:text-white disabled:opacity-50 transition-all duration-200 text-sm sm:text-base" 
                     required 
                   />
                 </div>
@@ -504,7 +507,7 @@ export default function AddDataModal({ isOpen, onClose }: AddDataModalProps) {
                     value={maintenanceFormData.time}
                     onChange={handleMaintenanceInputChange}
                     disabled={isSubmitting}
-                    className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 dark:bg-gray-700 dark:text-white disabled:opacity-50 transition-all duration-200" 
+                    className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 dark:bg-gray-700 dark:text-white disabled:opacity-50 transition-all duration-200 text-sm sm:text-base" 
                     required 
                   />
                 </div>
@@ -522,7 +525,7 @@ export default function AddDataModal({ isOpen, onClose }: AddDataModalProps) {
                     onChange={handleMaintenanceInputChange}
                     disabled={isSubmitting}
                     placeholder="Masukkan detail maintenance yang dilakukan" 
-                    className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 dark:bg-gray-700 dark:text-white disabled:opacity-50 transition-all duration-200 min-h-[150px]" 
+                    className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 dark:bg-gray-700 dark:text-white disabled:opacity-50 transition-all duration-200 min-h-[120px] sm:min-h-[150px] text-sm sm:text-base" 
                     required 
                   />
                 </div>
@@ -541,25 +544,25 @@ export default function AddDataModal({ isOpen, onClose }: AddDataModalProps) {
                     onChange={handleMaintenanceInputChange}
                     disabled={isSubmitting}
                     placeholder="Masukkan nama petugas" 
-                    className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 dark:bg-gray-700 dark:text-white disabled:opacity-50 transition-all duration-200" 
+                    className="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 dark:bg-gray-700 dark:text-white disabled:opacity-50 transition-all duration-200 text-sm sm:text-base" 
                     required 
                   />
                 </div>
                 
                 {/* Footer for Maintenance Form */}
-                <div className="flex justify-end space-x-3 pt-4">
+                <div className="flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-3 pt-4">
                   <button 
                     type="button"
                     onClick={handleClose}
                     disabled={isSubmitting}
-                    className="px-6 py-2.5 bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-500 transition-all duration-200 font-medium disabled:opacity-50"
+                    className="w-full sm:w-auto px-4 sm:px-6 py-2.5 bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-500 transition-all duration-200 font-medium disabled:opacity-50 text-sm sm:text-base"
                   >
                     Batal
                   </button>
                   <button 
                     type="submit"
                     disabled={isSubmitting}
-                    className="px-6 py-2.5 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white rounded-lg hover:from-emerald-600 hover:to-emerald-700 transition-all duration-200 font-medium disabled:opacity-50 flex items-center shadow-lg"
+                    className="w-full sm:w-auto px-4 sm:px-6 py-2.5 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white rounded-lg hover:from-emerald-600 hover:to-emerald-700 transition-all duration-200 font-medium disabled:opacity-50 flex items-center justify-center shadow-lg text-sm sm:text-base"
                   >
                     {isSubmitting && <i className="fas fa-spinner fa-spin mr-2"></i>}
                     <i className={`fas ${isSubmitting ? 'fa-spinner fa-spin' : 'fa-save'} mr-2`}></i>
@@ -568,16 +571,6 @@ export default function AddDataModal({ isOpen, onClose }: AddDataModalProps) {
                 </div>
               </form>
             )}
-          </div>
-          
-          {/* Modal Footer */}
-          <div className="bg-gray-50 dark:bg-gray-700 px-6 py-4 flex justify-end">
-            <button 
-              onClick={handleClose}
-              className="px-6 py-2.5 bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-500 transition-all font-medium"
-            >
-              Tutup
-            </button>
           </div>
         </div>
       </div>

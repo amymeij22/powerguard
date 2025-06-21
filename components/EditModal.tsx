@@ -134,7 +134,7 @@ export default function EditModal({ isOpen, onClose, onSave, editingItem, dataTy
       case 'power':
         return (
           <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   <i className="fas fa-plug mr-2 text-emerald-500"></i>
@@ -144,7 +144,7 @@ export default function EditModal({ isOpen, onClose, onSave, editingItem, dataTy
                   name="pln"
                   value={formData.pln || 0}
                   onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:bg-gray-700 dark:text-white"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:bg-gray-700 dark:text-white text-sm sm:text-base"
                   required
                 >
                   <option value={0}>Nonaktif</option>
@@ -160,7 +160,7 @@ export default function EditModal({ isOpen, onClose, onSave, editingItem, dataTy
                   name="genset_135"
                   value={formData.genset_135 || 0}
                   onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:bg-gray-700 dark:text-white"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:bg-gray-700 dark:text-white text-sm sm:text-base"
                   required
                 >
                   <option value={0}>Nonaktif</option>
@@ -176,7 +176,7 @@ export default function EditModal({ isOpen, onClose, onSave, editingItem, dataTy
                   name="genset_150"
                   value={formData.genset_150 || 0}
                   onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:bg-gray-700 dark:text-white"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:bg-gray-700 dark:text-white text-sm sm:text-base"
                   required
                 >
                   <option value={0}>Nonaktif</option>
@@ -192,7 +192,7 @@ export default function EditModal({ isOpen, onClose, onSave, editingItem, dataTy
                   name="genset_radar"
                   value={formData.genset_radar || 0}
                   onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:bg-gray-700 dark:text-white"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:bg-gray-700 dark:text-white text-sm sm:text-base"
                   required
                 >
                   <option value={0}>Nonaktif</option>
@@ -211,7 +211,7 @@ export default function EditModal({ isOpen, onClose, onSave, editingItem, dataTy
                 value={formData.datetime || ''}
                 onChange={handleInputChange}
                 placeholder="dd/mm/yyyy hh:mm:ss"
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:bg-gray-700 dark:text-white"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:bg-gray-700 dark:text-white text-sm sm:text-base"
                 required
               />
             </div>
@@ -223,7 +223,7 @@ export default function EditModal({ isOpen, onClose, onSave, editingItem, dataTy
           <div className="space-y-4">
             {formData.tangki_135kva !== undefined ? (
               // Three tank format
-              <div className="grid grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     <i className="fas fa-gas-pump mr-2 text-emerald-500"></i>
@@ -236,7 +236,7 @@ export default function EditModal({ isOpen, onClose, onSave, editingItem, dataTy
                     onChange={handleInputChange}
                     min="0"
                     max="100"
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:bg-gray-700 dark:text-white"
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:bg-gray-700 dark:text-white text-sm sm:text-base"
                     required
                   />
                 </div>
@@ -252,7 +252,7 @@ export default function EditModal({ isOpen, onClose, onSave, editingItem, dataTy
                     onChange={handleInputChange}
                     min="0"
                     max="100"
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:bg-gray-700 dark:text-white"
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:bg-gray-700 dark:text-white text-sm sm:text-base"
                     required
                   />
                 </div>
@@ -268,14 +268,14 @@ export default function EditModal({ isOpen, onClose, onSave, editingItem, dataTy
                     onChange={handleInputChange}
                     min="0"
                     max="100"
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:bg-gray-700 dark:text-white"
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:bg-gray-700 dark:text-white text-sm sm:text-base"
                     required
                   />
                 </div>
               </div>
             ) : formData.reservoir !== undefined ? (
               // Dual tank format
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     <i className="fas fa-gas-pump mr-2 text-emerald-500"></i>
@@ -288,7 +288,7 @@ export default function EditModal({ isOpen, onClose, onSave, editingItem, dataTy
                     onChange={handleInputChange}
                     min="0"
                     max="100"
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:bg-gray-700 dark:text-white"
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:bg-gray-700 dark:text-white text-sm sm:text-base"
                     required
                   />
                 </div>
@@ -304,7 +304,7 @@ export default function EditModal({ isOpen, onClose, onSave, editingItem, dataTy
                     onChange={handleInputChange}
                     min="0"
                     max="100"
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:bg-gray-700 dark:text-white"
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:bg-gray-700 dark:text-white text-sm sm:text-base"
                     required
                   />
                 </div>
@@ -323,7 +323,7 @@ export default function EditModal({ isOpen, onClose, onSave, editingItem, dataTy
                   onChange={handleInputChange}
                   min="0"
                   max="100"
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:bg-gray-700 dark:text-white"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:bg-gray-700 dark:text-white text-sm sm:text-base"
                   required
                 />
               </div>
@@ -339,7 +339,7 @@ export default function EditModal({ isOpen, onClose, onSave, editingItem, dataTy
                 value={formData.datetime || ''}
                 onChange={handleInputChange}
                 placeholder="dd/mm/yyyy hh:mm:ss"
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:bg-gray-700 dark:text-white"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:bg-gray-700 dark:text-white text-sm sm:text-base"
                 required
               />
             </div>
@@ -349,7 +349,7 @@ export default function EditModal({ isOpen, onClose, onSave, editingItem, dataTy
       case 'refill':
         return (
           <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   <i className="fas fa-calendar-alt mr-2 text-emerald-500 dark:text-white"></i>
@@ -361,7 +361,7 @@ export default function EditModal({ isOpen, onClose, onSave, editingItem, dataTy
                   value={formData.date || ''}
                   onChange={handleInputChange}
                   placeholder="dd/mm/yyyy"
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:bg-gray-700 dark:text-white"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:bg-gray-700 dark:text-white text-sm sm:text-base"
                   required
                 />
               </div>
@@ -376,7 +376,7 @@ export default function EditModal({ isOpen, onClose, onSave, editingItem, dataTy
                   value={formData.time || ''}
                   onChange={handleInputChange}
                   placeholder="hh:mm:ss"
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:bg-gray-700 dark:text-white"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:bg-gray-700 dark:text-white text-sm sm:text-base"
                   required
                 />
               </div>
@@ -392,7 +392,7 @@ export default function EditModal({ isOpen, onClose, onSave, editingItem, dataTy
                 value={formData.amount || ''}
                 onChange={handleInputChange}
                 placeholder="Contoh: 25.5 atau 25,5"
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:bg-gray-700 dark:text-white"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:bg-gray-700 dark:text-white text-sm sm:text-base"
                 required
               />
             </div>
@@ -407,17 +407,18 @@ export default function EditModal({ isOpen, onClose, onSave, editingItem, dataTy
                 value={formData.technician || ''}
                 onChange={handleInputChange}
                 placeholder="Masukkan nama petugas"
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:bg-gray-700 dark:text-white"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:bg-gray-700 dark:text-white text-sm sm:text-base"
                 required
               />
             </div>
           </div>
+        
         );
 
       case 'battery':
         return (
           <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   <i className="fas fa-calendar-alt mr-2 text-emerald-500 dark:text-white"></i>
@@ -429,7 +430,7 @@ export default function EditModal({ isOpen, onClose, onSave, editingItem, dataTy
                   value={formData.date || ''}
                   onChange={handleInputChange}
                   placeholder="dd/mm/yyyy"
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:bg-gray-700 dark:text-white"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:bg-gray-700 dark:text-white text-sm sm:text-base"
                   required
                 />
               </div>
@@ -444,7 +445,7 @@ export default function EditModal({ isOpen, onClose, onSave, editingItem, dataTy
                   value={formData.time || ''}
                   onChange={handleInputChange}
                   placeholder="hh:mm:ss"
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:bg-gray-700 dark:text-white"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:bg-gray-700 dark:text-white text-sm sm:text-base"
                   required
                 />
               </div>
@@ -460,7 +461,7 @@ export default function EditModal({ isOpen, onClose, onSave, editingItem, dataTy
                 value={formData.battery_type || ''}
                 onChange={handleInputChange}
                 placeholder="Masukkan tipe baterai"
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:bg-gray-700 dark:text-white"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:bg-gray-700 dark:text-white text-sm sm:text-base"
                 required
               />
             </div>
@@ -474,7 +475,7 @@ export default function EditModal({ isOpen, onClose, onSave, editingItem, dataTy
                 value={formData.notes || ''}
                 onChange={handleInputChange}
                 placeholder="Tambahkan catatan penggantian baterai"
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:bg-gray-700 dark:text-white min-h-[80px]"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:bg-gray-700 dark:text-white min-h-[80px] text-sm sm:text-base"
                 required
               />
             </div>
@@ -489,7 +490,7 @@ export default function EditModal({ isOpen, onClose, onSave, editingItem, dataTy
                 value={formData.technician || ''}
                 onChange={handleInputChange}
                 placeholder="Masukkan nama petugas"
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:bg-gray-700 dark:text-white"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:bg-gray-700 dark:text-white text-sm sm:text-base"
                 required
               />
             </div>
@@ -499,7 +500,7 @@ export default function EditModal({ isOpen, onClose, onSave, editingItem, dataTy
       case 'maintenance':
         return (
           <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   <i className="fas fa-calendar-alt mr-2 text-emerald-500 dark:text-white"></i>
@@ -511,7 +512,7 @@ export default function EditModal({ isOpen, onClose, onSave, editingItem, dataTy
                   value={formData.date || ''}
                   onChange={handleInputChange}
                   placeholder="dd/mm/yyyy"
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:bg-gray-700 dark:text-white"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:bg-gray-700 dark:text-white text-sm sm:text-base"
                   required
                 />
               </div>
@@ -526,7 +527,7 @@ export default function EditModal({ isOpen, onClose, onSave, editingItem, dataTy
                   value={formData.time || ''}
                   onChange={handleInputChange}
                   placeholder="hh:mm:ss"
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:bg-gray-700 dark:text-white"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:bg-gray-700 dark:text-white text-sm sm:text-base"
                   required
                 />
               </div>
@@ -541,7 +542,7 @@ export default function EditModal({ isOpen, onClose, onSave, editingItem, dataTy
                 value={formData.note || ''}
                 onChange={handleInputChange}
                 placeholder="Masukkan detail maintenance yang dilakukan"
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:bg-gray-700 dark:text-white min-h-[120px]"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:bg-gray-700 dark:text-white min-h-[100px] sm:min-h-[120px] text-sm sm:text-base"
                 required
               />
             </div>
@@ -556,7 +557,7 @@ export default function EditModal({ isOpen, onClose, onSave, editingItem, dataTy
                 value={formData.technician || ''}
                 onChange={handleInputChange}
                 placeholder="Masukkan nama petugas"
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:bg-gray-700 dark:text-white"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:bg-gray-700 dark:text-white text-sm sm:text-base"
                 required
               />
             </div>
@@ -571,13 +572,13 @@ export default function EditModal({ isOpen, onClose, onSave, editingItem, dataTy
   return (
     <>
       {/* Edit Modal with higher z-index than History Modal (z-50) */}
-      <div className="fixed inset-0 z-[60] bg-black bg-opacity-50" onClick={handleBackdropClick}>
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white dark:bg-gray-800 rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] mx-4 flex flex-col overflow-hidden">
+      <div className="fixed inset-0 z-[60] bg-black bg-opacity-50 flex items-center justify-center p-4" onClick={handleBackdropClick}>
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-[95vw] sm:max-w-[90vw] lg:max-w-3xl max-h-[95vh] sm:max-h-[90vh] flex flex-col overflow-hidden">
           {/* Modal Header */}
-          <div className="bg-gradient-to-r from-yellow-500 to-yellow-600 p-6 text-white">
+          <div className="bg-gradient-to-r from-yellow-500 to-yellow-600 p-4 sm:p-6 text-white">
             <div className="flex justify-between items-center">
               <div>
-                <h3 className="text-xl font-bold">{getModalTitle()}</h3>
+                <h3 className="text-lg sm:text-xl font-bold">{getModalTitle()}</h3>
                 <p className="text-yellow-100 text-sm mt-1">Ubah informasi data</p>
               </div>
               <button 
@@ -591,24 +592,24 @@ export default function EditModal({ isOpen, onClose, onSave, editingItem, dataTy
           </div>
           
           {/* Modal Content */}
-          <div className="overflow-auto flex-grow p-6">
-            <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="overflow-auto flex-grow p-4 sm:p-6">
+            <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
               {renderFormFields()}
               
               {/* Form Actions */}
-              <div className="flex justify-end space-x-3 pt-4 border-t border-gray-200 dark:border-gray-700">
+              <div className="flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-3 pt-4 border-t border-gray-200 dark:border-gray-700">
                 <button 
                   type="button"
                   onClick={onClose}
                   disabled={isSubmitting}
-                  className="px-6 py-2.5 bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-500 transition-all duration-200 font-medium disabled:opacity-50"
+                  className="w-full sm:w-auto px-4 sm:px-6 py-2.5 bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-500 transition-all duration-200 font-medium disabled:opacity-50 text-sm sm:text-base"
                 >
                   Batal
                 </button>
                 <button 
                   type="submit"
                   disabled={isSubmitting}
-                  className="px-6 py-2.5 bg-gradient-to-r from-yellow-500 to-yellow-600 text-white rounded-lg hover:from-yellow-600 hover:to-yellow-700 transition-all duration-200 font-medium disabled:opacity-50 flex items-center shadow-lg"
+                  className="w-full sm:w-auto px-4 sm:px-6 py-2.5 bg-gradient-to-r from-yellow-500 to-yellow-600 text-white rounded-lg hover:from-yellow-600 hover:to-yellow-700 transition-all duration-200 font-medium disabled:opacity-50 flex items-center justify-center shadow-lg text-sm sm:text-base"
                 >
                   {isSubmitting && <i className="fas fa-spinner fa-spin mr-2"></i>}
                   <i className={`fas ${isSubmitting ? 'fa-spinner fa-spin' : 'fa-save'} mr-2`}></i>
