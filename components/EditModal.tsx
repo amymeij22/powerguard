@@ -570,7 +570,8 @@ export default function EditModal({ isOpen, onClose, onSave, editingItem, dataTy
 
   return (
     <>
-      <div className="fixed inset-0 z-60 bg-black bg-opacity-50" onClick={handleBackdropClick}>
+      {/* Edit Modal with higher z-index than History Modal (z-50) */}
+      <div className="fixed inset-0 z-[60] bg-black bg-opacity-50" onClick={handleBackdropClick}>
         <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white dark:bg-gray-800 rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] mx-4 flex flex-col overflow-hidden">
           {/* Modal Header */}
           <div className="bg-gradient-to-r from-yellow-500 to-yellow-600 p-6 text-white">
@@ -619,7 +620,7 @@ export default function EditModal({ isOpen, onClose, onSave, editingItem, dataTy
         </div>
       </div>
 
-      {/* Custom Alert Popup */}
+      {/* Custom Alert Popup with even higher z-index */}
       <AlertPopup
         isOpen={alert.isOpen}
         type={alert.type}
