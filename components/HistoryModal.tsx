@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { getAllPowerStatus, getAllFuelLevels, getAllFuelRefills, getAllBatteryReplacements, getAllMaintenance, PowerStatus, FuelLevel, FuelRefill, BatteryReplacement, Maintenance, filterDataByDateRange, updatePowerStatus, deletePowerStatus, bulkDeletePowerStatus, updateFuelLevel, deleteFuelLevel, bulkDeleteFuelLevel, updateFuelRefill, deleteFuelRefill, bulkDeleteFuelRefill, updateBatteryReplacement, deleteBatteryReplacement, bulkDeleteBatteryReplacement, updateMaintenance, deleteMaintenance, bulkDeleteMaintenance } from '@/lib/firebaseService';
 import { useAlert } from '@/hooks/use-alert';
 import AlertPopup from '@/components/ui/alert-popup';
+import EditModal from '@/components/EditModal';
 
 interface HistoryModalProps {
   isOpen: boolean;
@@ -914,40 +915,13 @@ export default function HistoryModal({ isOpen, onClose, onDetailClick }: History
       </div>
 
       {/* Edit Modal */}
-      {showEditModal && editingItem && (
-        <div className="fixed inset-0 z-60 bg-black bg-opacity-50 flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-2xl max-w-md w-full max-h-[80vh] overflow-y-auto">
-            <div className="bg-gradient-to-r from-yellow-500 to-yellow-600 p-6 text-white">
-              <h3 className="text-xl font-bold">Edit Data</h3>
-              <p className="text-yellow-100 text-sm mt-1">Ubah informasi data</p>
-            </div>
-            
-            <div className="p-6">
-              {/* Edit form content would go here based on activeTab */}
-              <div className="space-y-4">
-                <p className="text-gray-600 dark:text-gray-400">
-                  Fitur edit akan segera tersedia untuk tipe data ini.
-                </p>
-              </div>
-            </div>
-            
-            <div className="bg-gray-50 dark:bg-gray-700 px-6 py-4 flex justify-end space-x-3">
-              <button 
-                onClick={() => setShowEditModal(false)}
-                className="px-4 py-2 bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-500 transition-all"
-              >
-                Batal
-              </button>
-              <button 
-                onClick={() => handleSaveEdit({})}
-                className="px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition-all"
-              >
-                Simpan
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <EditModal
+        isOpen={showEditModal}
+        onClose={() => setShowEditModal(false)}
+        onSave={handleSaveEdit}
+        editingItem={editingItem}
+        dataType={activeTab as 'power' | 'fuel' | 'refill' | 'battery' | 'maintenance'}
+      />
 
       {/* Custom Alert Popup */}
       <AlertPopup
