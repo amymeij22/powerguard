@@ -57,7 +57,7 @@ export default function Home() {
             {/* Hide PowerGuard text on mobile */}
             <h1 className="text-2xl font-bold text-gray-800 dark:text-white hidden sm:block">PowerGuard</h1>
           </div>
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-2 sm:space-x-4">
             <SystemStatusIndicator />
             <button
               onClick={() => setShowAddDataModal(true)}
@@ -90,7 +90,7 @@ export default function Home() {
 
       {/* Main Content */}
       <main className="flex-grow container mx-auto px-4 py-6 flex items-center justify-center overflow-auto neon-bg">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full max-w-6xl mt-12 mb-16 md:my-4">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 w-full max-w-7xl mt-8 sm:mt-12 mb-12 sm:mb-16 md:my-4">
           <PowerSourceCard />
           <FuelLevelCard />
         </div>

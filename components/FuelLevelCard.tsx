@@ -96,13 +96,13 @@ export default function FuelLevelCard() {
 
   const renderFuelTank = (level: number, title: string, icon: string) => (
     <div className="flex flex-col items-center flex-1">
-      <div className="mb-8 text-center">
-        <h3 className="text-sm lg:text-base font-semibold text-gray-700 dark:text-gray-300">
+      <div className="mb-4 sm:mb-6 md:mb-8 text-center">
+        <h3 className="text-sm sm:text-base lg:text-lg font-semibold text-gray-700 dark:text-gray-300">
           <i className={`${icon} mr-2 text-emerald-500`}></i>{title}
         </h3>
       </div>
 
-      <div className="relative w-36 sm:w-32 lg:w-36 h-48 sm:h-52 lg:h-56 mb-4">
+      <div className="relative w-28 sm:w-32 md:w-36 lg:w-40 h-40 sm:h-48 md:h-52 lg:h-56 mb-4">
         <div className="relative w-full h-full flex items-center justify-center">
           <div className="relative w-full h-[90%] rounded-3xl bg-gradient-to-br from-gray-300 via-gray-200 to-gray-100 dark:from-gray-700 dark:via-gray-600 dark:to-gray-500 shadow-2xl overflow-hidden"
                style={{ boxShadow: 'inset 0 8px 16px rgba(0,0,0,0.15), 0 12px 32px rgba(0,0,0,0.25), 0 4px 8px rgba(0,0,0,0.1)' }}>
@@ -119,7 +119,7 @@ export default function FuelLevelCard() {
               </div>
               <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                 <div className="bg-white bg-opacity-95 dark:bg-gray-900 dark:bg-opacity-90 px-2 py-1.5 rounded-xl shadow-xl border border-white border-opacity-50">
-                  <span className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-800 dark:text-white">{level}%</span>
+                  <span className="text-lg sm:text-xl md:text-2xl font-bold text-gray-800 dark:text-white">{level}%</span>
                 </div>
               </div>
             </div>
@@ -136,7 +136,7 @@ export default function FuelLevelCard() {
       </div>
 
       {/* Status Indicator */}
-      <div className="text-center mt-4">
+      <div className="text-center mt-2 sm:mt-4">
         <div className={getFuelStatusBadge(level)}>
           <i className={`${getFuelStatusIcon(level)} mr-1 text-xs`}></i>
           <span className="text-xs">{getFuelStatusText(level)}</span>
@@ -155,11 +155,14 @@ export default function FuelLevelCard() {
       </div>
 
       <div className="flex flex-col items-center justify-center flex-grow">
-        {/* Desktop: 3 tanks in one row, Mobile: 1 tank per row */}
-        <div className="flex flex-col md:flex-row justify-center items-center md:items-start gap-4 md:gap-6 lg:gap-8 w-full">
+        {/* Responsive layout: Mobile (1 per row), Tablet (2 per row), Desktop (3 per row) */}
+        <div className="flex flex-col sm:flex-col md:grid md:grid-cols-2 lg:flex lg:flex-row justify-center items-center md:items-start gap-4 md:gap-6 lg:gap-8 w-full">
           {renderFuelTank(fuelLevels.tangki_135kva, 'Tangki 135kVA', 'fas fa-gas-pump')}
           {renderFuelTank(fuelLevels.tangki_150kva, 'Tangki 150kVA', 'fas fa-gas-pump')}
-          {renderFuelTank(fuelLevels.tangki_radar, 'Tangki Radar', 'fas fa-gas-pump')}
+          {/* On tablet, this will be in a new row spanning 2 columns */}
+          <div className="md:col-span-2 lg:col-span-1 flex justify-center">
+            {renderFuelTank(fuelLevels.tangki_radar, 'Tangki Radar', 'fas fa-gas-pump')}
+          </div>
         </div>
       </div>
     </div>

@@ -91,7 +91,7 @@ export default function PowerSourceCard() {
   }, []);
 
   const getStatusBadgeClass = (status: number, type: string, gensetType?: string) => {
-    const baseClasses = 'status-indicator p-3 rounded-lg flex flex-col items-center justify-center h-28 sm:h-32';
+    const baseClasses = 'status-indicator p-3 rounded-lg flex flex-col items-center justify-center h-24 sm:h-28 md:h-32 lg:h-36';
     
     if (status === 1) {
       if (type === 'pln') {
@@ -147,33 +147,34 @@ export default function PowerSourceCard() {
       </div>
       
       <div className="flex flex-col items-center justify-start py-2 sm:py-4 lg:py-6 flex-grow">
-        <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:gap-6 mb-4 w-full max-w-3xl">
+        {/* Responsive grid: Mobile (2x2), Tablet (2x2), Desktop (2x2) */}
+        <div className="grid grid-cols-2 gap-3 sm:gap-4 md:gap-6 lg:gap-8 mb-4 w-full max-w-4xl">
           {/* PLN Status Badge */}
           <div className={getStatusBadgeClass(powerStatus.pln, 'pln')}>
-            <i className="fas fa-plug text-2xl sm:text-3xl lg:text-4xl mb-1 sm:mb-2"></i>
-            <span className="label text-base sm:text-lg lg:text-xl font-medium">PLN</span>
-            <span className="status text-sm sm:text-base">{getStatusText(powerStatus.pln)}</span>
+            <i className="fas fa-plug text-xl sm:text-2xl md:text-3xl lg:text-4xl mb-1 sm:mb-2"></i>
+            <span className="label text-sm sm:text-base md:text-lg lg:text-xl font-medium">PLN</span>
+            <span className="status text-xs sm:text-sm md:text-base">{getStatusText(powerStatus.pln)}</span>
           </div>
           
           {/* Genset 135kVA Status Badge */}
           <div className={getStatusBadgeClass(powerStatus.genset135, 'genset', '135kVA')}>
-            <i className="fas fa-bolt text-2xl sm:text-3xl lg:text-4xl mb-1 sm:mb-2"></i>
-            <span className="label text-base sm:text-lg lg:text-xl font-medium">Genset 135kVA</span>
-            <span className="status text-sm sm:text-base">{getStatusText(powerStatus.genset135)}</span>
+            <i className="fas fa-bolt text-xl sm:text-2xl md:text-3xl lg:text-4xl mb-1 sm:mb-2"></i>
+            <span className="label text-sm sm:text-base md:text-lg lg:text-xl font-medium">Genset 135kVA</span>
+            <span className="status text-xs sm:text-sm md:text-base">{getStatusText(powerStatus.genset135)}</span>
           </div>
           
           {/* Genset 150kVA Status Badge */}
           <div className={getStatusBadgeClass(powerStatus.genset150, 'genset', '150kVA')}>
-            <i className="fas fa-bolt text-2xl sm:text-3xl lg:text-4xl mb-1 sm:mb-2"></i>
-            <span className="label text-base sm:text-lg lg:text-xl font-medium">Genset 150kVA</span>
-            <span className="status text-sm sm:text-base">{getStatusText(powerStatus.genset150)}</span>
+            <i className="fas fa-bolt text-xl sm:text-2xl md:text-3xl lg:text-4xl mb-1 sm:mb-2"></i>
+            <span className="label text-sm sm:text-base md:text-lg lg:text-xl font-medium">Genset 150kVA</span>
+            <span className="status text-xs sm:text-sm md:text-base">{getStatusText(powerStatus.genset150)}</span>
           </div>
           
           {/* Genset Radar Status Badge */}
           <div className={getStatusBadgeClass(powerStatus.gensetRadar, 'genset', 'Radar')}>
-            <i className="fas fa-bolt text-2xl sm:text-3xl lg:text-4xl mb-1 sm:mb-2"></i>
-            <span className="label text-base sm:text-lg lg:text-xl font-medium">Genset Radar</span>
-            <span className="status text-sm sm:text-base">{getStatusText(powerStatus.gensetRadar)}</span>
+            <i className="fas fa-bolt text-xl sm:text-2xl md:text-3xl lg:text-4xl mb-1 sm:mb-2"></i>
+            <span className="label text-sm sm:text-base md:text-lg lg:text-xl font-medium">Genset Radar</span>
+            <span className="status text-xs sm:text-sm md:text-base">{getStatusText(powerStatus.gensetRadar)}</span>
           </div>
         </div>
         

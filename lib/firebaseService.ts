@@ -1,5 +1,5 @@
 import { database } from './firebase';
-import { ref, push, set, onValue, off, query, orderByChild, limitToLast, remove } from 'firebase/database';
+import { ref, push, set, onValue, off, query, orderByChild, limitToLast, remove, update } from 'firebase/database';
 
 export interface PowerStatus {
   pln: number;
@@ -59,6 +59,39 @@ export const addPowerStatus = async (status: PowerStatus) => {
   }
 };
 
+export const updatePowerStatus = async (id: string, status: Partial<PowerStatus>) => {
+  try {
+    const statusRef = ref(database, `status/${id}`);
+    await update(statusRef, status);
+    return id;
+  } catch (error) {
+    console.error('Error updating power status:', error);
+    throw error;
+  }
+};
+
+export const deletePowerStatus = async (id: string) => {
+  try {
+    const statusRef = ref(database, `status/${id}`);
+    await remove(statusRef);
+    return id;
+  } catch (error) {
+    console.error('Error deleting power status:', error);
+    throw error;
+  }
+};
+
+export const bulkDeletePowerStatus = async (ids: string[]) => {
+  try {
+    const deletePromises = ids.map(id => deletePowerStatus(id));
+    await Promise.all(deletePromises);
+    return ids;
+  } catch (error) {
+    console.error('Error bulk deleting power status:', error);
+    throw error;
+  }
+};
+
 export const subscribeToLatestPowerStatus = (callback: (status: PowerStatus & { id: string }) => void) => {
   const statusRef = query(ref(database, 'status'), orderByChild('datetime'), limitToLast(1));
   
@@ -107,6 +140,39 @@ export const addFuelLevel = async (level: FuelLevel) => {
     return newLevelRef.key;
   } catch (error) {
     console.error('Error adding fuel level:', error);
+    throw error;
+  }
+};
+
+export const updateFuelLevel = async (id: string, level: Partial<FuelLevel>) => {
+  try {
+    const levelRef = ref(database, `level/${id}`);
+    await update(levelRef, level);
+    return id;
+  } catch (error) {
+    console.error('Error updating fuel level:', error);
+    throw error;
+  }
+};
+
+export const deleteFuelLevel = async (id: string) => {
+  try {
+    const levelRef = ref(database, `level/${id}`);
+    await remove(levelRef);
+    return id;
+  } catch (error) {
+    console.error('Error deleting fuel level:', error);
+    throw error;
+  }
+};
+
+export const bulkDeleteFuelLevel = async (ids: string[]) => {
+  try {
+    const deletePromises = ids.map(id => deleteFuelLevel(id));
+    await Promise.all(deletePromises);
+    return ids;
+  } catch (error) {
+    console.error('Error bulk deleting fuel level:', error);
     throw error;
   }
 };
@@ -163,6 +229,39 @@ export const addFuelRefill = async (refill: FuelRefill) => {
   }
 };
 
+export const updateFuelRefill = async (id: string, refill: Partial<FuelRefill>) => {
+  try {
+    const fuelRef = ref(database, `fuel/${id}`);
+    await update(fuelRef, refill);
+    return id;
+  } catch (error) {
+    console.error('Error updating fuel refill:', error);
+    throw error;
+  }
+};
+
+export const deleteFuelRefill = async (id: string) => {
+  try {
+    const fuelRef = ref(database, `fuel/${id}`);
+    await remove(fuelRef);
+    return id;
+  } catch (error) {
+    console.error('Error deleting fuel refill:', error);
+    throw error;
+  }
+};
+
+export const bulkDeleteFuelRefill = async (ids: string[]) => {
+  try {
+    const deletePromises = ids.map(id => deleteFuelRefill(id));
+    await Promise.all(deletePromises);
+    return ids;
+  } catch (error) {
+    console.error('Error bulk deleting fuel refill:', error);
+    throw error;
+  }
+};
+
 export const getAllFuelRefills = (callback: (refills: (FuelRefill & { id: string })[]) => void) => {
   const fuelRef = ref(database, 'fuel');
   
@@ -200,6 +299,39 @@ export const addBatteryReplacement = async (replacement: BatteryReplacement) => 
   }
 };
 
+export const updateBatteryReplacement = async (id: string, replacement: Partial<BatteryReplacement>) => {
+  try {
+    const batteryRef = ref(database, `battery/${id}`);
+    await update(batteryRef, replacement);
+    return id;
+  } catch (error) {
+    console.error('Error updating battery replacement:', error);
+    throw error;
+  }
+};
+
+export const deleteBatteryReplacement = async (id: string) => {
+  try {
+    const batteryRef = ref(database, `battery/${id}`);
+    await remove(batteryRef);
+    return id;
+  } catch (error) {
+    console.error('Error deleting battery replacement:', error);
+    throw error;
+  }
+};
+
+export const bulkDeleteBatteryReplacement = async (ids: string[]) => {
+  try {
+    const deletePromises = ids.map(id => deleteBatteryReplacement(id));
+    await Promise.all(deletePromises);
+    return ids;
+  } catch (error) {
+    console.error('Error bulk deleting battery replacement:', error);
+    throw error;
+  }
+};
+
 export const getAllBatteryReplacements = (callback: (replacements: (BatteryReplacement & { id: string })[]) => void) => {
   const batteryRef = ref(database, 'battery');
   
@@ -233,6 +365,39 @@ export const addMaintenance = async (maintenance: Maintenance) => {
     return newMaintenanceRef.key;
   } catch (error) {
     console.error('Error adding maintenance:', error);
+    throw error;
+  }
+};
+
+export const updateMaintenance = async (id: string, maintenance: Partial<Maintenance>) => {
+  try {
+    const maintenanceRef = ref(database, `maintenance/${id}`);
+    await update(maintenanceRef, maintenance);
+    return id;
+  } catch (error) {
+    console.error('Error updating maintenance:', error);
+    throw error;
+  }
+};
+
+export const deleteMaintenance = async (id: string) => {
+  try {
+    const maintenanceRef = ref(database, `maintenance/${id}`);
+    await remove(maintenanceRef);
+    return id;
+  } catch (error) {
+    console.error('Error deleting maintenance:', error);
+    throw error;
+  }
+};
+
+export const bulkDeleteMaintenance = async (ids: string[]) => {
+  try {
+    const deletePromises = ids.map(id => deleteMaintenance(id));
+    await Promise.all(deletePromises);
+    return ids;
+  } catch (error) {
+    console.error('Error bulk deleting maintenance:', error);
     throw error;
   }
 };
