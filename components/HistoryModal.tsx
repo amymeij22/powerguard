@@ -285,41 +285,35 @@ export default function HistoryModal({ isOpen, onClose, onDetailClick }: History
     } else if (activeTab === 'fuel') {
       const csvData = fuelHistory.map(level => {
         // Handle new three tank format
+        let tangki135Level = 0, tangki150Level = 0, tangkiRadarLevel = 0;
+        
         if (level.tangki_135kva !== undefined && level.tangki_150kva !== undefined && level.tangki_radar !== undefined) {
-          return {
-            tanggal: formatDisplayDateTime(level.datetime),
-            tangki_135kva: `${level.tangki_135kva}%`,
-            tangki_150kva: `${level.tangki_150kva}%`,
-            tangki_radar: `${level.tangki_radar}%`,
-            status_135kva: getFuelStatusText(level.tangki_135kva),
-            status_150kva: getFuelStatusText(level.tangki_150kva),
-            status_radar: getFuelStatusText(level.tangki_radar)
-          };
+          tangki135Level = Math.round(level.tangki_135kva);
+          tangki150Level = Math.round(level.tangki_150kva);
+          tangkiRadarLevel = Math.round(level.tangki_radar);
         }
         // Handle old dual tank format
         else if (level.reservoir !== undefined && level.drum !== undefined) {
-          return {
-            tanggal: formatDisplayDateTime(level.datetime),
-            tangki_135kva: `${level.reservoir}%`,
-            tangki_150kva: `${level.drum}%`,
-            tangki_radar: 'N/A',
-            status_135kva: getFuelStatusText(level.reservoir),
-            status_150kva: getFuelStatusText(level.drum),
-            status_radar: 'N/A'
-          };
+          tangki135Level = Math.round(level.reservoir);
+          tangki150Level = Math.round(level.drum);
+          tangkiRadarLevel = Math.round(Math.max(0, (level.reservoir + level.drum) / 2));
         }
         // Handle old single level format
-        else {
-          return {
-            tanggal: formatDisplayDateTime(level.datetime),
-            tangki_135kva: level.level ? `${level.level}%` : 'N/A',
-            tangki_150kva: 'N/A',
-            tangki_radar: 'N/A',
-            status_135kva: level.level ? getFuelStatusText(level.level) : 'N/A',
-            status_150kva: 'N/A',
-            status_radar: 'N/A'
-          };
+        else if (level.level !== undefined) {
+          tangki135Level = Math.round(level.level);
+          tangki150Level = Math.round(Math.max(0, level.level - 10));
+          tangkiRadarLevel = Math.round(Math.max(0, level.level - 5));
         }
+        
+        return {
+          tanggal: formatDisplayDateTime(level.datetime),
+          tangki_135kva: `${tangki135Level}%`,
+          tangki_150kva: `${tangki150Level}%`,
+          tangki_radar: `${tangkiRadarLevel}%`,
+          status_135kva: getFuelStatusText(tangki135Level),
+          status_150kva: getFuelStatusText(tangki150Level),
+          status_radar: getFuelStatusText(tangkiRadarLevel)
+        };
       });
       downloadCSV(csvData, `riwayat_level_minyak_${filterSuffix}_${timestamp}.csv`, 
         ['Tanggal', 'Tangki 135kVA', 'Tangki 150kVA', 'Tangki Radar', 'Status 135kVA', 'Status 150kVA', 'Status Radar']);
@@ -629,10 +623,10 @@ export default function HistoryModal({ isOpen, onClose, onDetailClick }: History
           </div>
           
           {/* Modal Content - Always maintain table structure */}
-          <div className="overflow-auto flex-grow p-3 sm:p-4 lg:p-6">
+          <div className="overflow-auto modal-content flex-grow p-3 sm:p-4 lg:p-6">
             {/* Power Status History Table */}
             {activeTab === 'power' && (
-              <div className="overflow-x-auto">
+              <div className="overflow-x-auto modal-content">
                 <div className="min-w-full">
                   <table className="w-full divide-y divide-gray-200 dark:divide-gray-700">
                     <thead className="bg-gray-50 dark:bg-gray-900 sticky top-0">
@@ -684,7 +678,7 @@ export default function HistoryModal({ isOpen, onClose, onDetailClick }: History
 
             {/* Fuel Level History Table - Enhanced for Three Tanks */}
             {activeTab === 'fuel' && (
-              <div className="overflow-x-auto">
+              <div className="overflow-x-auto modal-content">
                 <div className="min-w-full">
                   <table className="w-full divide-y divide-gray-200 dark:divide-gray-700">
                     <thead className="bg-gray-50 dark:bg-gray-900 sticky top-0">
@@ -711,21 +705,21 @@ export default function HistoryModal({ isOpen, onClose, onDetailClick }: History
                         let tangki135Level = 0, tangki150Level = 0, tangkiRadarLevel = 0;
                         
                         if (level.tangki_135kva !== undefined && level.tangki_150kva !== undefined && level.tangki_radar !== undefined) {
-                          tangki135Level = level.tangki_135kva;
-                          tangki150Level = level.tangki_150kva;
-                          tangkiRadarLevel = level.tangki_radar;
+                          tangki135Level = Math.round(level.tangki_135kva);
+                          tangki150Level = Math.round(level.tangki_150kva);
+                          tangkiRadarLevel = Math.round(level.tangki_radar);
                         }
                         // Handle old dual tank format
                         else if (level.reservoir !== undefined && level.drum !== undefined) {
-                          tangki135Level = level.reservoir;
-                          tangki150Level = level.drum;
-                          tangkiRadarLevel = Math.max(0, (level.reservoir + level.drum) / 2);
+                          tangki135Level = Math.round(level.reservoir);
+                          tangki150Level = Math.round(level.drum);
+                          tangkiRadarLevel = Math.round(Math.max(0, (level.reservoir + level.drum) / 2));
                         }
                         // Handle old single level format
                         else if (level.level !== undefined) {
-                          tangki135Level = level.level;
-                          tangki150Level = Math.max(0, level.level - 10);
-                          tangkiRadarLevel = Math.max(0, level.level - 5);
+                          tangki135Level = Math.round(level.level);
+                          tangki150Level = Math.round(Math.max(0, level.level - 10));
+                          tangkiRadarLevel = Math.round(Math.max(0, level.level - 5));
                         }
                         
                         return (
@@ -777,7 +771,7 @@ export default function HistoryModal({ isOpen, onClose, onDetailClick }: History
 
             {/* Fuel Refill History Table */}
             {activeTab === 'refill' && (
-              <div className="overflow-x-auto">
+              <div className="overflow-x-auto modal-content">
                 <div className="min-w-full">
                   <table className="w-full divide-y divide-gray-200 dark:divide-gray-700">
                     <thead className="bg-gray-50 dark:bg-gray-900 sticky top-0">
@@ -817,7 +811,7 @@ export default function HistoryModal({ isOpen, onClose, onDetailClick }: History
 
             {/* Battery Replacement History Table */}
             {activeTab === 'battery' && (
-              <div className="overflow-x-auto">
+              <div className="overflow-x-auto modal-content">
                 <div className="min-w-full">
                   <table className="w-full divide-y divide-gray-200 dark:divide-gray-700">
                     <thead className="bg-gray-50 dark:bg-gray-900 sticky top-0">
@@ -863,7 +857,7 @@ export default function HistoryModal({ isOpen, onClose, onDetailClick }: History
 
             {/* Maintenance History Table */}
             {activeTab === 'maintenance' && (
-              <div className="overflow-x-auto">
+              <div className="overflow-x-auto modal-content">
                 <div className="min-w-full">
                   <table className="w-full divide-y divide-gray-200 dark:divide-gray-700">
                     <thead className="bg-gray-50 dark:bg-gray-900 sticky top-0">

@@ -274,4 +274,24 @@
     .text-danger {
         color: #ef4444;
     }
+    
+    /* Hide scrollbars for modal/popup */
+    /* Hide scrollbar for Chrome, Safari and Opera */
+    .modal-content::-webkit-scrollbar,
+    [role="dialog"]::-webkit-scrollbar,
+    .overflow-auto::-webkit-scrollbar,
+    .overflow-y-auto::-webkit-scrollbar,
+    .overflow-x-auto::-webkit-scrollbar {
+        display: none;
+    }
+
+    /* Hide scrollbar for IE, Edge and Firefox */
+    .modal-content,
+    [role="dialog"],
+    .overflow-auto,
+    .overflow-y-auto,
+    .overflow-x-auto {
+        -ms-overflow-style: none;  /* IE and Edge */
+        scrollbar-width: none;  /* Firefox */
+    }
 }

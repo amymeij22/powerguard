@@ -592,7 +592,7 @@ export default function EditModal({ isOpen, onClose, onSave, editingItem, dataTy
           </div>
           
           {/* Modal Content */}
-          <div className="overflow-auto flex-grow p-4 sm:p-6">
+          <div className="overflow-auto modal-content flex-grow p-4 sm:p-6">
             <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
               {renderFormFields()}
               

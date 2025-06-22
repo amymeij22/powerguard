@@ -137,7 +137,7 @@ export default function DetailStatusModal({ isOpen, onClose, detailId }: DetailS
         </div>
         
         {/* Modal Content */}
-        <div className="p-4 sm:p-6 space-y-4 sm:space-y-6">
+        <div className="p-4 sm:p-6 space-y-4 sm:space-y-6 modal-content">
           <div>
             <h4 className="text-base sm:text-lg font-semibold text-gray-700 dark:text-gray-300 mb-3 flex items-center">
               <i className="fas fa-calendar-alt mr-2 text-emerald-500"></i>

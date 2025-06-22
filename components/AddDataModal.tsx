@@ -243,7 +243,7 @@ export default function AddDataModal({ isOpen, onClose }: AddDataModalProps) {
           </div>
           
           {/* Modal Content */}
-          <div className="overflow-auto flex-grow p-4 sm:p-6">
+          <div className="overflow-auto modal-content flex-grow p-4 sm:p-6">
             {/* Fuel Refill Form */}
             {activeTab === 'fuel' && (
               <form onSubmit={handleFuelSubmit} className="space-y-4 sm:space-y-6">

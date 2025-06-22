@@ -38,25 +38,25 @@ export default function FuelLevelCard() {
       // Handle new three tank format
       if (level.tangki_135kva !== undefined && level.tangki_150kva !== undefined && level.tangki_radar !== undefined) {
         setFuelLevels({
-          tangki_135kva: level.tangki_135kva,
-          tangki_150kva: level.tangki_150kva,
-          tangki_radar: level.tangki_radar
+          tangki_135kva: Math.round(level.tangki_135kva),
+          tangki_150kva: Math.round(level.tangki_150kva),
+          tangki_radar: Math.round(level.tangki_radar)
         });
       }
       // Fallback for old dual tank format
       else if (level.reservoir !== undefined && level.drum !== undefined) {
         setFuelLevels({
-          tangki_135kva: level.reservoir,
-          tangki_150kva: level.drum,
-          tangki_radar: Math.max(0, (level.reservoir + level.drum) / 2)
+          tangki_135kva: Math.round(level.reservoir),
+          tangki_150kva: Math.round(level.drum),
+          tangki_radar: Math.round(Math.max(0, (level.reservoir + level.drum) / 2))
         });
       }
       // Fallback for old single level format
       else if (level.level !== undefined) {
         setFuelLevels({
-          tangki_135kva: level.level,
-          tangki_150kva: Math.max(0, level.level - 10),
-          tangki_radar: Math.max(0, level.level - 5)
+          tangki_135kva: Math.round(level.level),
+          tangki_150kva: Math.round(Math.max(0, level.level - 10)),
+          tangki_radar: Math.round(Math.max(0, level.level - 5))
         });
       }
 
@@ -94,7 +94,9 @@ export default function FuelLevelCard() {
     return 'Perlu Pengisian';
   };
 
-  const renderFuelTank = (level: number, title: string, icon: string) => (
+  const renderFuelTank = (level: number, title: string, icon: string) => {
+    const roundedLevel = Math.round(level);
+    return (
     <div className="flex flex-col items-center flex-1">
       <div className="mb-4 sm:mb-6 md:mb-8 text-center">
         <h3 className="text-sm sm:text-base lg:text-lg font-semibold text-gray-700 dark:text-gray-300">
@@ -108,8 +110,8 @@ export default function FuelLevelCard() {
                style={{ boxShadow: 'inset 0 8px 16px rgba(0,0,0,0.15), 0 12px 32px rgba(0,0,0,0.25), 0 4px 8px rgba(0,0,0,0.1)' }}>
             <div className="absolute inset-3 rounded-2xl overflow-hidden bg-opacity-40 bg-white dark:bg-opacity-20 dark:bg-gray-800 border border-white border-opacity-30"
                  style={{ backdropFilter: 'blur(4px)', boxShadow: 'inset 0 0 20px rgba(255,255,255,0.4), inset 0 2px 4px rgba(255,255,255,0.6)' }}>
-              <div className={`absolute bottom-0 left-0 right-0 transition-all duration-1500 ease-out bg-gradient-to-t ${getFuelColor(level)}`}
-                   style={{ height: `${level}%` }}>
+              <div className={`absolute bottom-0 left-0 right-0 transition-all duration-1500 ease-out bg-gradient-to-t ${getFuelColor(roundedLevel)}`}
+                   style={{ height: `${roundedLevel}%` }}>
                 <div className="absolute top-0 left-0 right-0 h-[20%] bg-gradient-to-b from-white to-transparent opacity-40"></div>
                 <div className="absolute top-[10%] left-0 right-0 h-[5%] bg-white opacity-20"></div>
                 <div className="absolute bottom-6 left-3 w-2 h-2 rounded-full bg-white bg-opacity-70 animate-ping" style={{ animationDuration: '3s', animationDelay: '1s' }}></div>
@@ -119,7 +121,7 @@ export default function FuelLevelCard() {
               </div>
               <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                 <div className="bg-white bg-opacity-95 dark:bg-gray-900 dark:bg-opacity-90 px-2 py-1.5 rounded-xl shadow-xl border border-white border-opacity-50">
-                  <span className="text-lg sm:text-xl md:text-2xl font-bold text-gray-800 dark:text-white">{level}%</span>
+                  <span className="text-lg sm:text-xl md:text-2xl font-bold text-gray-800 dark:text-white">{roundedLevel}%</span>
                 </div>
               </div>
             </div>
@@ -137,13 +139,14 @@ export default function FuelLevelCard() {
 
       {/* Status Indicator */}
       <div className="text-center mt-2 sm:mt-4">
-        <div className={getFuelStatusBadge(level)}>
-          <i className={`${getFuelStatusIcon(level)} mr-1 text-xs`}></i>
-          <span className="text-xs">{getFuelStatusText(level)}</span>
+        <div className={getFuelStatusBadge(roundedLevel)}>
+          <i className={`${getFuelStatusIcon(roundedLevel)} mr-1 text-xs`}></i>
+          <span className="text-xs">{getFuelStatusText(roundedLevel)}</span>
         </div>
       </div>
     </div>
   );
+  }
 
   return (
     <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4 sm:p-6 lg:p-8 transition-all h-full flex flex-col relative">
